@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+/* ===================== DESIGN TOKENS ===================== */
+:root {
+  color-scheme: light;
+  --page-bg: #f8fafc;
+  --card-bg: #ffffff;
+  --panel-bg: rgba(255, 255, 255, 0.85);
+  --border-color: rgba(148, 163, 184, 0.2);
+  --text-color: #0f172a;
+  --muted-color: #64748b;
+  --shadow-soft: 0 30px 80px rgba(15, 23, 42, 0.12);
+  --cyan: #06b6d4;
+  --cyan-dark: #0891b2;
+}
+
+.dark {
+  color-scheme: dark;
+  --page-bg: #020617;
+  --card-bg: #0f172a;
+  --panel-bg: rgba(15, 23, 42, 0.8);
+  --border-color: rgba(148, 163, 184, 0.12);
+  --text-color: #e2e8f0;
+  --muted-color: #94a3b8;
+  --shadow-soft: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+/* ===================== BASE ===================== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--page-bg);
+  color: var(--text-color);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ===================== UTILITIES ===================== */
+.glass {
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #0f172a 0%, #0ea5e9 100%);
+}
+
+.hero-overlay {
+  background: linear-gradient(
+    to right,
+    rgba(15, 23, 42, 0.97) 0%,
+    rgba(15, 23, 42, 0.6) 60%,
+    rgba(15, 23, 42, 0.15) 100%
+  );
+}
+
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+.shadow-glow-cyan {
+  box-shadow: 0 0 40px rgba(6, 182, 212, 0.25);
+}
+
+/* ===================== SCROLLBAR ===================== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+/* ===================== FORM ELEMENTS ===================== */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input[type='datetime-local']::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+}
+
+/* ===================== SELECTION ===================== */
+::selection {
+  background: rgba(6, 182, 212, 0.25);
+  color: inherit;
+}
+
+/* ===================== SKELETON ANIMATION ===================== */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.12) 25%,
+    rgba(148, 163, 184, 0.22) 50%,
+    rgba(148, 163, 184, 0.12) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+}
+
+/* ===================== TRANSITIONS ===================== */
+.page-transition {
+  animation: fadeUp 0.4s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+
+/* ===================== TABLE ===================== */
+th {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
