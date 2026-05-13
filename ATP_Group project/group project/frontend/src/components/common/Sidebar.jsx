@@ -2,22 +2,25 @@ import { useContext } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   FaUserMd, FaCalendarCheck, FaPrescriptionBottleAlt,
-  FaUsers, FaChartLine, FaUserCircle, FaSignOutAlt, FaCalendarAlt
+  FaUsers, FaTachometerAlt, FaUserCircle, FaSignOutAlt,
+  FaPhone, FaHospital, FaBrain
 } from 'react-icons/fa'
 import { AuthContext } from '../../context/AuthContext'
 import { toast } from 'react-hot-toast'
-
-const navBase = 'flex items-center gap-3 rounded-2xl px-5 py-3.5 text-slate-300 font-medium transition-all duration-200 text-sm'
-const navActive = 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/25'
-const navInactive = 'hover:bg-slate-800 hover:text-white'
 
 function NavItem({ to, icon: Icon, label }) {
   return (
     <NavLink
       to={to}
-      className={({ isActive }) => `${navBase} ${isActive ? navActive : navInactive}`}
+      className={({ isActive }) =>
+        `flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+          isActive
+            ? 'bg-teal-700 text-white shadow-sm'
+            : 'text-slate-300 hover:bg-white/10 hover:text-white'
+        }`
+      }
     >
-      <Icon className='flex-shrink-0' />
+      <Icon size={13} className='flex-shrink-0' />
       {label}
     </NavLink>
   )
@@ -34,51 +37,84 @@ function Sidebar() {
   }
 
   return (
-    <aside className='w-72 min-h-screen bg-slate-950 text-white flex flex-col px-6 py-8 hidden md:flex shadow-2xl flex-shrink-0'>
-      {/* Brand */}
-      <div className='mb-8 px-2'>
-        <p className='text-xs uppercase tracking-[0.4em] text-cyan-400 font-bold'>MediCare+</p>
-        <h1 className='text-2xl font-black text-white mt-1'>Hospital System</h1>
+    <aside
+      className='w-56 min-h-screen hidden md:flex flex-col flex-shrink-0 border-r'
+      style={{
+        background: 'linear-gradient(180deg, #0f1f1e 0%, #0a1512 100%)',
+        borderColor: '#1a3330'
+      }}
+    >
+      {/* ── Brand ─────────────────────────────────────────────────────────── */}
+      <div className='px-5 py-5 border-b' style={{ borderColor: '#1a3330' }}>
+        <div className='flex items-center gap-2.5'>
+          <div className='h-8 w-8 rounded-lg bg-teal-700 flex items-center justify-center flex-shrink-0'>
+            <FaHospital size={13} className='text-white' />
+          </div>
+          <div>
+            <p className='text-sm font-extrabold leading-tight'>
+              <span className='text-teal-400'>Medi</span>
+              <span className='text-white'>Care</span>
+              <span className='text-red-400'>+</span>
+            </p>
+            <p className='text-[9px] text-slate-500 uppercase tracking-[0.2em]'>Hospital System</p>
+          </div>
+        </div>
       </div>
 
-      {/* User Card */}
-      <div className='mb-8 rounded-2xl bg-slate-900 border border-slate-800 p-5 flex items-center gap-4'>
-        <div className='h-12 w-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-indigo-500 flex items-center justify-center text-xl font-black text-white flex-shrink-0'>
-          {user?.name?.charAt(0)?.toUpperCase() || 'M'}
-        </div>
-        <div className='min-w-0'>
-          <p className='font-bold text-white truncate'>{user?.name || 'User'}</p>
-          <p className='text-xs text-cyan-400 capitalize mt-0.5'>{role || 'guest'}</p>
+      {/* ── User card ─────────────────────────────────────────────────────── */}
+      <div className='px-4 py-3.5 border-b' style={{ borderColor: '#1a3330' }}>
+        <div className='flex items-center gap-2.5'>
+          <div className='h-8 w-8 rounded-full bg-teal-700/30 border border-teal-600/40 flex items-center justify-center text-teal-400 font-bold text-sm flex-shrink-0'>
+            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+          </div>
+          <div className='min-w-0'>
+            <p className='text-xs font-semibold text-white truncate'>{user?.name || 'User'}</p>
+            <p className='text-[10px] text-teal-400/80 capitalize'>{role || 'guest'}</p>
+          </div>
         </div>
       </div>
 
-      {/* Nav Links */}
-      <nav className='flex-1 space-y-1.5'>
-        <NavItem to='/dashboard'     icon={FaChartLine}               label='Dashboard' />
-        <NavItem to='/doctors'       icon={FaUserMd}                  label='Doctors' />
+      {/* ── Navigation ────────────────────────────────────────────────────── */}
+      <nav className='flex-1 px-3 py-4 space-y-0.5'>
+        <p className='text-[9px] uppercase tracking-[0.2em] text-slate-600 font-semibold px-2 mb-2'>Main Menu</p>
+        <NavItem to='/dashboard'     icon={FaTachometerAlt}           label='Dashboard' />
+        {role !== 'doctor' && (
+          <NavItem to='/doctors'       icon={FaUserMd}                  label='Our Doctors' />
+        )}
         {(role === 'admin' || role === 'doctor') && (
           <NavItem to='/patients'    icon={FaUsers}                   label='Patients' />
         )}
         <NavItem to='/appointments'  icon={FaCalendarCheck}           label='Appointments' />
-        {(role === 'admin' || role === 'doctor') && (
+        {(role === 'admin' || role === 'doctor' || role === 'patient') && (
           <NavItem to='/prescriptions' icon={FaPrescriptionBottleAlt} label='Prescriptions' />
+        )}
+        {role === 'patient' && (
+          <NavItem to='/symptom-checker' icon={FaBrain}               label='Symptom Checker' />
         )}
         <NavItem to='/profile'       icon={FaUserCircle}              label='My Profile' />
       </nav>
 
-      {/* Pro Tip */}
-      <div className='mt-6 rounded-2xl bg-slate-900 border border-slate-800 p-5 text-xs text-slate-400 leading-relaxed'>
-        <p className='font-semibold text-cyan-400 mb-1.5'>💡 Pro Tip</p>
-        Use the status filters on the Appointments page to quickly track pending cases.
+      {/* ── Emergency ─────────────────────────────────────────────────────── */}
+      <div className='px-3 pb-3'>
+        <div className='rounded-lg border border-red-900/60 bg-red-950/40 px-3 py-2.5'>
+          <div className='flex items-center gap-2 mb-1'>
+            <FaPhone size={9} className='text-red-400' />
+            <p className='text-[10px] font-bold text-red-400'>Emergency</p>
+          </div>
+          <p className='text-xs font-black text-white'>108</p>
+          <p className='text-[9px] text-red-300/70'>Ambulance • 24/7</p>
+        </div>
       </div>
 
-      {/* Logout */}
-      <button
-        onClick={handleLogout}
-        className='mt-5 flex items-center gap-3 rounded-2xl px-5 py-3.5 text-slate-400 hover:bg-rose-900/30 hover:text-rose-300 transition text-sm font-medium'
-      >
-        <FaSignOutAlt /> Sign Out
-      </button>
+      {/* ── Sign out ──────────────────────────────────────────────────────── */}
+      <div className='px-3 pb-5'>
+        <button
+          onClick={handleLogout}
+          className='w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-red-900/30 hover:text-red-300 transition-colors'
+        >
+          <FaSignOutAlt size={12} /> Sign Out
+        </button>
+      </div>
     </aside>
   )
 }

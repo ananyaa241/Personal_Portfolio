@@ -2,6 +2,7 @@ import exp from "express";
 import bcryptjs from "bcryptjs";
 
 import { PatientModel } from "../models/PatientModel.js";
+import { transporter } from "../config/nodemailer.js";
 
 export const patientApp = exp.Router();
 
@@ -32,6 +33,28 @@ async (req, res, next) => {
         patientData.password = hashedPassword;
 
         await PatientModel.create(patientData);
+
+        // Send registration confirmation email
+        if (patientData.email) {
+            try {
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: patientData.email,
+                    subject: "Welcome to MediCare+",
+                    html: `
+                        <h2>Welcome to MediCare+</h2>
+                        <p>Dear ${patientData.name},</p>
+                        <p>Thank you for registering with MediCare+. Your account has been created successfully.</p>
+                        <p>You can now log in to our portal to book appointments, view your prescriptions, and manage your healthcare seamlessly.</p>
+                        <br/>
+                        <p>Best Regards,</p>
+                        <p><b>MediCare+ Hospital Team</b></p>
+                    `
+                });
+            } catch (mailErr) {
+                console.log("Registration email failed", mailErr.message);
+            }
+        }
 
         res.status(201).json({
             message: "Patient registered"

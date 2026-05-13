@@ -1,36 +1,39 @@
 import { useEffect, useState, useContext } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'react-hot-toast'
-import {
-  FaCalendarCheck, FaSearch, FaFilter, FaTrash, FaEdit,
-  FaCalendarPlus
-} from 'react-icons/fa'
+import { FaCalendarCheck, FaSearch, FaTrash } from 'react-icons/fa'
 import axiosInstance from '../../api/axiosInstance'
 import { AuthContext } from '../../context/AuthContext'
 import { SkeletonTable } from '../common/SkeletonCard'
 import EmptyState from '../common/EmptyState'
 
-const STATUS_STYLES = {
-  Pending:   'bg-amber-100   text-amber-700   dark:bg-amber-900/40  dark:text-amber-300',
-  Approved:  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-  Completed: 'bg-cyan-100    text-cyan-700    dark:bg-cyan-900/40   dark:text-cyan-300',
-  Cancelled: 'bg-rose-100    text-rose-700    dark:bg-rose-900/40   dark:text-rose-300',
+const STATUS_BADGE = {
+  Pending:   'badge badge-pending',
+  Approved:  'badge badge-approved',
+  Completed: 'badge badge-completed',
+  Cancelled: 'badge badge-cancelled',
 }
 
 const STATUSES = ['All', 'Pending', 'Approved', 'Completed', 'Cancelled']
 
 function Appointments() {
-  const { role } = useContext(AuthContext)
+  const { role, user } = useContext(AuthContext)
   const [appointments, setAppointments] = useState([])
-  const [filtered, setFiltered] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [filtered, setFiltered]         = useState([])
+  const [loading, setLoading]           = useState(true)
   const [statusFilter, setStatusFilter] = useState('All')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery]   = useState('')
 
   async function fetchAppointments() {
     try {
       setLoading(true)
-      const res = await axiosInstance.get('/appointment-api/')
+      let endpoint = '/appointment-api/'
+      if (role === 'doctor' && user?._id) {
+        endpoint = `/appointment-api/doctor/${user._id}`
+      } else if (role === 'patient' && user?._id) {
+        endpoint = `/appointment-api/patient/${user._id}`
+      }
+      const res = await axiosInstance.get(endpoint)
       const data = res.data.payload || []
       setAppointments(data)
       setFiltered(data)
@@ -43,7 +46,6 @@ function Appointments() {
 
   useEffect(() => { fetchAppointments() }, [])
 
-  // Client-side filter
   useEffect(() => {
     let list = [...appointments]
     if (statusFilter !== 'All') list = list.filter(a => a.status === statusFilter)
@@ -78,44 +80,45 @@ function Appointments() {
     }
   }
 
+  const colCount = role !== 'patient' ? 6 : 5
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      {/* Header */}
-      <div className='flex flex-wrap items-center justify-between gap-4 mb-8'>
-        <div>
-          <p className='text-cyan-500 uppercase tracking-widest text-xs font-bold'>Healthcare</p>
-          <h1 className='mt-2 text-4xl font-black text-slate-900 dark:text-white'>Appointments</h1>
-        </div>
+    <div>
+      {/* ── Page header ─────────────────────────────────────────────────── */}
+      <div className='mb-6 pb-5 border-b' style={{ borderColor:'var(--border)' }}>
+        <p className='text-xs uppercase tracking-widest font-semibold text-teal-600 dark:text-teal-400'>Healthcare</p>
+        <h1 className='mt-1 text-xl font-bold' style={{ color:'var(--txt-primary)' }}>Appointments</h1>
       </div>
 
-      {/* Filters Row */}
-      <div className='flex flex-wrap gap-3 mb-6'>
+      {/* ── Toolbar ─────────────────────────────────────────────────────── */}
+      <div className='flex flex-wrap gap-3 mb-5'>
         {/* Search */}
         <div className='relative flex-1 min-w-[200px]'>
-          <FaSearch className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-400' />
+          <FaSearch size={12} className='absolute left-3.5 top-1/2 -translate-y-1/2' style={{ color:'var(--txt-muted)' }} />
           <input
             type='text'
             placeholder='Search patient or doctor...'
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className='w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-5 py-3 text-slate-700 outline-none focus:border-cyan-400 transition dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
+            className='w-full pl-9 pr-4 py-2 rounded-lg border text-xs outline-none transition'
+            style={{ borderColor:'var(--border)', background:'var(--bg-card)', color:'var(--txt-primary)' }}
+            onFocus={e => e.target.style.borderColor='#0d9488'}
+            onBlur={e => e.target.style.borderColor='var(--border)'}
           />
         </div>
-        {/* Status filter */}
-        <div className='flex gap-2 flex-wrap'>
+
+        {/* Status filters */}
+        <div className='flex gap-1.5 flex-wrap'>
           {STATUSES.map(s => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-4 py-2 rounded-2xl font-semibold text-sm transition ${
-                statusFilter === s
-                  ? 'bg-cyan-500 text-white shadow-lg'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:border-cyan-400 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300'
-              }`}
+              className='px-3 py-2 rounded-lg text-xs font-semibold transition-colors'
+              style={{
+                background: statusFilter===s ? '#0d9488' : 'var(--bg-card)',
+                color: statusFilter===s ? '#fff' : 'var(--txt-secondary)',
+                border: `1px solid ${statusFilter===s ? '#0d9488' : 'var(--border)'}`,
+              }}
             >
               {s}
             </button>
@@ -123,95 +126,98 @@ function Appointments() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className='rounded-3xl bg-white shadow-xl overflow-hidden dark:bg-slate-900'>
-        <table className='w-full min-w-[600px]'>
-          <thead className='bg-slate-900 text-white dark:bg-slate-950'>
-            <tr>
-              {['Patient', 'Doctor', 'Date & Time', 'Symptoms', 'Status', ...(role !== 'patient' ? ['Actions'] : [])].map(h => (
-                <th key={h} className='px-6 py-5 text-left text-sm font-semibold uppercase tracking-wider'>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={role !== 'patient' ? 6 : 5}>
-                <SkeletonTable rows={5} cols={role !== 'patient' ? 6 : 5} />
-              </td></tr>
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={role !== 'patient' ? 6 : 5}>
-                <EmptyState
-                  icon={FaCalendarCheck}
-                  title='No appointments found'
-                  message='Try changing your search or filter criteria.'
-                />
-              </td></tr>
-            ) : (
-              <AnimatePresence>
-                {filtered.map((appt, i) => (
-                  <motion.tr
-                    key={appt._id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                    className='border-b border-slate-100 hover:bg-slate-50 transition dark:border-slate-800 dark:hover:bg-slate-800/50'
-                  >
-                    <td className='px-6 py-5 font-semibold text-slate-800 dark:text-slate-200'>
-                      {appt.patientId?.name || '—'}
-                    </td>
-                    <td className='px-6 py-5 text-slate-600 dark:text-slate-400'>
-                      Dr. {appt.doctorId?.name || '—'}
-                    </td>
-                    <td className='px-6 py-5 text-slate-600 dark:text-slate-400'>
-                      {new Date(appt.appointmentDate).toLocaleString('en-IN', {
-                        dateStyle: 'medium', timeStyle: 'short'
-                      })}
-                    </td>
-                    <td className='px-6 py-5 text-slate-500 dark:text-slate-400 max-w-[160px] truncate'>
-                      {appt.symptoms || '—'}
-                    </td>
-                    <td className='px-6 py-5'>
-                      {role !== 'patient' ? (
-                        <select
-                          value={appt.status}
-                          onChange={e => handleStatusChange(appt._id, e.target.value)}
-                          className={`rounded-full px-3 py-1 text-xs font-bold border-none outline-none cursor-pointer ${STATUS_STYLES[appt.status]}`}
-                        >
-                          {['Pending', 'Approved', 'Completed', 'Cancelled'].map(s => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span className={`rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLES[appt.status]}`}>
-                          {appt.status}
-                        </span>
-                      )}
-                    </td>
-                    {role !== 'patient' && (
-                      <td className='px-6 py-5'>
-                        <button
-                          onClick={() => handleDelete(appt._id)}
-                          className='rounded-xl border border-rose-200 bg-rose-50 p-2.5 text-rose-500 transition hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-900/30'
-                        >
-                          <FaTrash size={12} />
-                        </button>
-                      </td>
-                    )}
-                  </motion.tr>
+      {/* ── Table ───────────────────────────────────────────────────────── */}
+      <div className='rounded-xl overflow-hidden' style={{ background:'var(--bg-card)', border:'1px solid var(--border)' }}>
+        <div className='overflow-x-auto'>
+          <table className='w-full min-w-[600px] text-xs'>
+            <thead>
+              <tr style={{ borderBottom:'1px solid var(--border)', background:'var(--bg-subtle)' }}>
+                {['Patient', 'Doctor', 'Date & Time', 'Symptoms', 'Status',
+                  ...(role === 'admin' ? ['Actions'] : [])
+                ].map(h => (
+                  <th key={h} className='px-5 py-3 text-left'>{h}</th>
                 ))}
-              </AnimatePresence>
-            )}
-          </tbody>
-        </table>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={colCount}>
+                  <SkeletonTable rows={5} cols={colCount} />
+                </td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan={colCount}>
+                  <div className='p-8'>
+                    <EmptyState icon={FaCalendarCheck} title='No appointments found' message='Try a different search or filter.' />
+                  </div>
+                </td></tr>
+              ) : (
+                <AnimatePresence>
+                  {filtered.map((appt, i) => (
+                    <motion.tr
+                      key={appt._id}
+                      initial={{ opacity:0 }}
+                      animate={{ opacity:1 }}
+                      transition={{ delay: i*0.03 }}
+                      style={{ borderBottom:'1px solid var(--border)' }}
+                      onMouseEnter={e => e.currentTarget.style.background='var(--bg-subtle)'}
+                      onMouseLeave={e => e.currentTarget.style.background='transparent'}
+                    >
+                      <td className='px-5 py-3 font-semibold' style={{ color:'var(--txt-primary)' }}>
+                        {appt.patientId?.name || '—'}
+                      </td>
+                      <td className='px-5 py-3' style={{ color:'var(--txt-secondary)' }}>
+                        Dr. {appt.doctorId?.name || '—'}
+                      </td>
+                      <td className='px-5 py-3' style={{ color:'var(--txt-secondary)' }}>
+                        {new Date(appt.appointmentDate).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})}
+                      </td>
+                      <td className='px-5 py-3 max-w-[130px] truncate' style={{ color:'var(--txt-muted)' }}>
+                        {appt.symptoms || '—'}
+                      </td>
+                      <td className='px-5 py-3'>
+                        {role !== 'patient' ? (
+                          <select
+                            value={appt.status}
+                            onChange={e => handleStatusChange(appt._id, e.target.value)}
+                            className={`${STATUS_BADGE[appt.status]} border-none outline-none cursor-pointer`}
+                          >
+                            {['Pending','Approved','Completed','Cancelled'].map(s => (
+                              <option key={s} value={s}>{s}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className={STATUS_BADGE[appt.status]}>{appt.status}</span>
+                        )}
+                      </td>
+                      {role === 'admin' && (
+                        <td className='px-5 py-3'>
+                          <button
+                            onClick={() => handleDelete(appt._id)}
+                            className='h-7 w-7 rounded-lg border flex items-center justify-center transition-colors'
+                            style={{ borderColor:'rgba(220,38,38,0.3)', color:'#dc2626', background:'rgba(220,38,38,0.06)' }}
+                            onMouseEnter={e => { e.currentTarget.style.background='rgba(220,38,38,0.15)' }}
+                            onMouseLeave={e => { e.currentTarget.style.background='rgba(220,38,38,0.06)' }}
+                          >
+                            <FaTrash size={10} />
+                          </button>
+                        </td>
+                      )}
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Results count */}
       {!loading && filtered.length > 0 && (
-        <p className='mt-4 text-sm text-slate-500 dark:text-slate-400'>
-          Showing <strong>{filtered.length}</strong> of <strong>{appointments.length}</strong> appointments
+        <p className='mt-3 text-xs' style={{ color:'var(--txt-muted)' }}>
+          Showing <strong style={{ color:'var(--txt-secondary)' }}>{filtered.length}</strong> of{' '}
+          <strong style={{ color:'var(--txt-secondary)' }}>{appointments.length}</strong> appointments
         </p>
       )}
-    </motion.div>
+    </div>
   )
 }
 

@@ -25,6 +25,12 @@ from "./APIs/PrescriptionAPI.js";
 import { commonApp }
 from "./APIs/CommonAPI.js";
 
+import { vitalsApp }
+from "./APIs/VitalsAPI.js";
+
+import { startReminderScheduler }
+from "./services/reminderService.js";
+
 config();
 
 
@@ -40,7 +46,9 @@ app.use(
     cors({
 
         origin: [
-            "http://localhost:5173"
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:5175"
         ],
 
         credentials: true
@@ -92,6 +100,11 @@ app.use(
     commonApp
 );
 
+app.use(
+    "/vitals-api",
+    vitalsApp
+);
+
 
 // ================= DATABASE CONNECTION =================
 
@@ -132,6 +145,9 @@ const connectDB = async () => {
 };
 
 connectDB();
+
+// ─── Start appointment reminder email scheduler ───────────────────────────────
+startReminderScheduler();
 
 
 // ================= INVALID PATH HANDLER =================

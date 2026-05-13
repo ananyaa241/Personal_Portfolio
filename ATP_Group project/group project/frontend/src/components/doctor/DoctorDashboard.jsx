@@ -1,39 +1,37 @@
 import { useEffect, useState, useContext } from 'react'
 import { motion } from 'framer-motion'
 import { toast } from 'react-hot-toast'
-import { FaCalendarCheck, FaUsers, FaCheckCircle, FaClock } from 'react-icons/fa'
+import { FaCalendarCheck, FaUsers, FaCheckCircle, FaClock, FaUserMd } from 'react-icons/fa'
 import axiosInstance from '../../api/axiosInstance'
 import { AuthContext } from '../../context/AuthContext'
 import Loader from '../common/Loader'
 import EmptyState from '../common/EmptyState'
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: i => ({ opacity: 1, y: 0, transition: { delay: i * 0.1 } })
-}
+import CalendarView from '../appointment/CalendarView'
 
 const STATUS_BADGE = {
-  Pending:   'bg-amber-100 text-amber-700',
-  Approved:  'bg-emerald-100 text-emerald-700',
-  Completed: 'bg-cyan-100 text-cyan-700',
-  Cancelled: 'bg-rose-100 text-rose-700',
+  Pending:   'badge badge-pending',
+  Approved:  'badge badge-approved',
+  Completed: 'badge badge-completed',
+  Cancelled: 'badge badge-cancelled',
 }
 
-function StatCard({ icon: Icon, label, value, color, index }) {
+function StatCard({ icon: Icon, label, value, color, iconBg, iconColor, index }) {
   return (
     <motion.div
-      custom={index}
-      variants={cardVariants}
-      initial='hidden'
-      animate='visible'
-      className={`rounded-3xl bg-white p-7 shadow-xl dark:bg-slate-900 border-l-4 ${color}`}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.07 }}
+      className='rounded-xl p-4'
+      style={{ background:'var(--bg-card)', border:'1px solid var(--border)', borderLeftWidth:4, borderLeftColor: color }}
     >
       <div className='flex items-center justify-between'>
         <div>
-          <p className='text-3xl font-black text-slate-900 dark:text-white'>{value}</p>
-          <p className='mt-2 text-sm text-slate-500 dark:text-slate-400 uppercase tracking-widest font-semibold'>{label}</p>
+          <p className='text-[10px] uppercase tracking-wider font-semibold' style={{ color:'var(--txt-muted)' }}>{label}</p>
+          <p className='mt-1.5 text-2xl font-extrabold' style={{ color:'var(--txt-primary)' }}>{value}</p>
         </div>
-        <Icon className='text-3xl text-slate-300 dark:text-slate-600' />
+        <div className='h-9 w-9 rounded-xl flex items-center justify-center' style={{ background: iconBg }}>
+          <Icon size={15} style={{ color: iconColor }} />
+        </div>
       </div>
     </motion.div>
   )
@@ -42,85 +40,166 @@ function StatCard({ icon: Icon, label, value, color, index }) {
 function DoctorDashboard() {
   const { user } = useContext(AuthContext)
   const [appointments, setAppointments] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading]           = useState(true)
 
   useEffect(() => {
     if (!user?._id) return
-    async function loadData() {
-      try {
-        setLoading(true)
-        const res = await axiosInstance.get(`/appointment-api/doctor/${user._id}`)
-        setAppointments(res.data.payload || [])
-      } catch (err) {
-        toast.error('Failed to load your appointments')
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadData()
+    axiosInstance.get(`/appointment-api/doctor/${user._id}`)
+      .then(res => setAppointments(res.data.payload || []))
+      .catch(() => toast.error('Failed to load appointments'))
+      .finally(() => setLoading(false))
   }, [user])
 
-  async function handleStatusUpdate(id, newStatus) {
+  async function handleStatus(id, newStatus) {
     try {
       await axiosInstance.put(`/appointment-api/update-status/${id}`, { status: newStatus })
       toast.success(`Marked as ${newStatus}`)
-      setAppointments(prev =>
-        prev.map(a => a._id === id ? { ...a, status: newStatus } : a)
-      )
+      setAppointments(prev => prev.map(a => a._id===id ? {...a, status:newStatus} : a))
     } catch (err) {
       toast.error(err.response?.data?.message || 'Update failed')
     }
   }
 
+  async function handleAdvanceQueue() {
+    const queueAppointments = todayAppts
+      .filter(a => ['Pending', 'Approved'].includes(a.status))
+      .sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate))
+    if (queueAppointments.length === 0) {
+      toast('No active patients in the queue.')
+      return
+    }
+    const nextUp = queueAppointments[0]
+    await handleStatus(nextUp._id, 'Completed')
+  }
+
   if (loading) return <Loader />
 
-  const pending   = appointments.filter(a => a.status === 'Pending')
-  const approved  = appointments.filter(a => a.status === 'Approved')
-  const completed = appointments.filter(a => a.status === 'Completed')
-  const today = new Date().toDateString()
-  const todayAppts = appointments.filter(a => new Date(a.appointmentDate).toDateString() === today)
+  const today      = new Date().toDateString()
+  const pending    = appointments.filter(a => a.status==='Pending')
+  const completed  = appointments.filter(a => a.status==='Completed')
+  const todayAppts = appointments.filter(a => new Date(a.appointmentDate).toDateString()===today)
+  const queueAppointments = todayAppts
+    .filter(a => ['Pending', 'Approved'].includes(a.status))
+    .sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate))
+  const currentAppointment = queueAppointments.find(a => new Date(a.appointmentDate) <= new Date()) || queueAppointments[0]
+  const currentPosition = currentAppointment ? queueAppointments.findIndex(a => a._id === currentAppointment._id) + 1 : 0
+  const nextTimeLabel = currentAppointment ? new Date(currentAppointment.appointmentDate).toLocaleTimeString('en-IN', { timeStyle: 'short' }) : null
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      <div className='mb-8'>
-        <p className='text-cyan-500 uppercase tracking-widest text-xs font-bold'>Doctor Portal</p>
-        <h1 className='mt-2 text-4xl font-black text-slate-900 dark:text-white'>
-          Dr. {user?.name?.split(' ')[0] || 'Doctor'}'s Dashboard
+    <div>
+      {/* ── Page header ───────────────────────────────────────────────── */}
+      <div className='mb-6 pb-5 border-b' style={{ borderColor:'var(--border)' }}>
+        <p className='text-xs uppercase tracking-widest font-semibold text-teal-600 dark:text-teal-400'>Doctor Portal</p>
+        <h1 className='mt-1 text-xl font-bold' style={{ color:'var(--txt-primary)' }}>
+          Dr. {user?.name?.split(' ')[0]}'s Dashboard
         </h1>
         {user?.specialization && (
-          <p className='mt-1 text-cyan-500 font-semibold'>{user.specialization}</p>
+          <span className='inline-block mt-1.5 rounded-full bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-800 px-2.5 py-0.5 text-[10px] font-semibold text-teal-700 dark:text-teal-300'>
+            <FaUserMd className='inline mr-1' size={9} />{user.specialization}
+          </span>
         )}
       </div>
 
-      {/* Stats */}
-      <div className='grid md:grid-cols-4 gap-5 mb-8'>
-        <StatCard icon={FaCalendarCheck} label='Total'     value={appointments.length} color='border-cyan-500'    index={0} />
-        <StatCard icon={FaClock}         label='Pending'   value={pending.length}      color='border-amber-500'  index={1} />
-        <StatCard icon={FaCheckCircle}   label='Completed' value={completed.length}    color='border-emerald-500' index={2} />
-        <StatCard icon={FaUsers}         label='Today'     value={todayAppts.length}   color='border-indigo-500' index={3} />
+      {/* ── Stats ─────────────────────────────────────────────────────── */}
+      <div className='grid grid-cols-2 md:grid-cols-4 gap-3 mb-6'>
+        <StatCard icon={FaCalendarCheck} label='Total'     value={appointments.length} color='#0d9488' iconColor='#0d9488' iconBg='rgba(13,148,136,0.1)' index={0} />
+        <StatCard icon={FaClock}         label='Pending'   value={pending.length}      color='#f59e0b' iconColor='#d97706' iconBg='rgba(245,158,11,0.1)' index={1} />
+        <StatCard icon={FaCheckCircle}   label='Completed' value={completed.length}    color='#2563eb' iconColor='#2563eb' iconBg='rgba(37,99,235,0.1)'  index={2} />
+        <StatCard icon={FaUsers}         label="Today"     value={todayAppts.length}   color='#dc2626' iconColor='#dc2626' iconBg='rgba(220,38,38,0.1)'  index={3} />
       </div>
 
-      {/* Today's appointments */}
+      {/* ── Live queue overview ───────────────────────────────────────── */}
+      <div className='rounded-2xl mb-6 border overflow-hidden' style={{ background:'var(--bg-card)', borderColor:'#0d9488' }}>
+        <div className='h-1 w-full' style={{ background: 'linear-gradient(90deg, #0f766e, #0d9488, #14b8a6)' }} />
+        <div className='px-5 py-4 border-b flex items-center justify-between' style={{ borderColor:'var(--border)' }}>
+          <div>
+            <p className='text-[10px] uppercase tracking-widest font-semibold text-teal-600'>Live OPD Queue</p>
+            <h2 className='mt-1 text-base font-bold' style={{ color:'var(--txt-primary)' }}>
+              Today's Patient Queue
+            </h2>
+          </div>
+          {queueAppointments.length > 0 && (
+            <button
+              type='button'
+              onClick={handleAdvanceQueue}
+              className='rounded-xl px-4 py-2 text-[11px] font-bold text-white transition hover:opacity-90 flex items-center gap-2'
+              style={{ background: 'linear-gradient(105deg, #0f766e 0%, #0d9488 100%)' }}
+            >
+              ✅ Complete &amp; Next Patient
+            </button>
+          )}
+        </div>
+
+        {queueAppointments.length === 0 ? (
+          <div className='px-5 py-8 text-center'>
+            <p className='text-sm font-semibold' style={{ color:'var(--txt-secondary)' }}>🎉 Queue is clear for today</p>
+            <p className='text-xs mt-1' style={{ color:'var(--txt-muted)' }}>No pending or approved appointments remaining.</p>
+          </div>
+        ) : (
+          <div className='divide-y' style={{ borderColor:'var(--border)' }}>
+            {queueAppointments.map((a, i) => {
+              const isCurrent = i === 0
+              return (
+                <div
+                  key={a._id}
+                  className='flex items-center gap-4 px-5 py-3.5 transition-colors'
+                  style={{ background: isCurrent ? 'rgba(13,148,136,0.06)' : 'transparent' }}
+                >
+                  {/* Position badge */}
+                  <div
+                    className='h-8 w-8 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0'
+                    style={{
+                      background: isCurrent ? '#0d9488' : 'var(--bg-subtle)',
+                      color: isCurrent ? '#fff' : 'var(--txt-muted)'
+                    }}
+                  >
+                    #{i + 1}
+                  </div>
+
+                  {/* Patient info */}
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-xs font-bold truncate' style={{ color:'var(--txt-primary)' }}>
+                      {a.patientId?.name || '—'}
+                      {isCurrent && <span className='ml-2 text-[9px] font-black text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded-full'>CURRENT</span>}
+                    </p>
+                    <p className='text-[10px] mt-0.5' style={{ color:'var(--txt-muted)' }}>
+                      {new Date(a.appointmentDate).toLocaleTimeString('en-IN', { timeStyle:'short' })}
+                      {a.symptoms && ` · ${a.symptoms.slice(0, 35)}`}
+                    </p>
+                  </div>
+
+                  {/* Status */}
+                  <span className={`badge ${STATUS_BADGE[a.status]}`}>{a.status}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── Today's appointments ───────────────────────────────────────── */}
       {todayAppts.length > 0 && (
-        <div className='rounded-3xl bg-gradient-to-br from-cyan-500 to-indigo-600 p-7 text-white shadow-xl mb-6'>
-          <h2 className='text-xl font-bold mb-4'>📅 Today's Appointments ({todayAppts.length})</h2>
-          <div className='space-y-3'>
+        <div className='rounded-xl mb-5 overflow-hidden' style={{ border:'1px solid var(--border)' }}>
+          <div className='px-5 py-3 bg-teal-700'>
+            <p className='text-xs font-bold text-white'>📅 Today's Schedule — {todayAppts.length} appointment{todayAppts.length!==1?'s':''}</p>
+          </div>
+          <div className='divide-y' style={{ divideColor:'var(--border)' }}>
             {todayAppts.map(a => (
-              <div key={a._id} className='flex items-center justify-between rounded-2xl bg-white/15 px-4 py-3 backdrop-blur'>
+              <div key={a._id} className='flex items-center justify-between px-5 py-3' style={{ background:'var(--bg-card)' }}>
                 <div>
-                  <p className='font-bold'>{a.patientId?.name || '—'}</p>
-                  <p className='text-xs opacity-70'>
-                    {new Date(a.appointmentDate).toLocaleTimeString('en-IN', { timeStyle: 'short' })}
-                    {a.symptoms && ` · ${a.symptoms.slice(0, 30)}...`}
+                  <p className='text-xs font-semibold' style={{ color:'var(--txt-primary)' }}>{a.patientId?.name||'—'}</p>
+                  <p className='text-[10px] mt-0.5' style={{ color:'var(--txt-muted)' }}>
+                    {new Date(a.appointmentDate).toLocaleTimeString('en-IN',{timeStyle:'short'})}
+                    {a.symptoms && ` · ${a.symptoms.slice(0,35)}`}
                   </p>
                 </div>
                 <select
                   value={a.status}
-                  onChange={e => handleStatusUpdate(a._id, e.target.value)}
-                  className='rounded-xl bg-white/20 border border-white/30 px-3 py-1.5 text-xs font-bold text-white outline-none cursor-pointer'
+                  onChange={e => handleStatus(a._id, e.target.value)}
+                  className={`rounded-full px-3 py-1 text-[10px] font-semibold border-none outline-none cursor-pointer ${STATUS_BADGE[a.status]}`}
                 >
-                  {['Pending', 'Approved', 'Completed', 'Cancelled'].map(s => (
-                    <option key={s} value={s} className='text-slate-900'>{s}</option>
+                  {['Pending','Approved','Completed','Cancelled'].map(s => (
+                    <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
               </div>
@@ -129,53 +208,50 @@ function DoctorDashboard() {
         </div>
       )}
 
-      {/* All appointments */}
-      <div className='rounded-3xl bg-white p-7 shadow-xl dark:bg-slate-900'>
-        <h2 className='text-xl font-bold text-slate-800 dark:text-white mb-5 flex items-center gap-2'>
-          <FaCalendarCheck className='text-cyan-500' /> All Patient Appointments
-        </h2>
-        {appointments.length === 0 ? (
-          <EmptyState
-            icon={FaCalendarCheck}
-            title='No appointments yet'
-            message='Your patient appointments will appear here once booked.'
-          />
+      {/* ── All appointments ───────────────────────────────────────────── */}
+      <div className='rounded-xl overflow-hidden' style={{ background:'var(--bg-card)', border:'1px solid var(--border)' }}>
+        <div className='px-5 py-4 border-b' style={{ borderColor:'var(--border)' }}>
+          <p className='text-xs font-bold' style={{ color:'var(--txt-primary)' }}>All Patient Appointments</p>
+        </div>
+        {appointments.length===0 ? (
+          <div className='p-6'>
+            <EmptyState icon={FaCalendarCheck} title='No appointments yet' message='Patient appointments will appear here once booked.' />
+          </div>
         ) : (
-          <div className='space-y-3 max-h-96 overflow-y-auto pr-1'>
-            {appointments.map((a, i) => (
-              <motion.div
-                key={a._id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.04 }}
-                className='flex items-center justify-between rounded-2xl bg-slate-50 px-5 py-4 dark:bg-slate-800 gap-3'
+          <div className='divide-y max-h-[420px] overflow-y-auto' style={{ divideColor:'var(--border)' }}>
+            {appointments.map(a => (
+              <div key={a._id} className='flex items-center justify-between px-5 py-3 transition-colors'
+                style={{ background:'transparent' }}
+                onMouseEnter={e => e.currentTarget.style.background='var(--bg-subtle)'}
+                onMouseLeave={e => e.currentTarget.style.background='transparent'}
               >
-                <div className='flex-1'>
-                  <p className='font-semibold text-slate-800 dark:text-slate-200'>
-                    {a.patientId?.name || '—'}
+                <div className='flex-1 min-w-0'>
+                  <p className='text-xs font-semibold truncate' style={{ color:'var(--txt-primary)' }}>{a.patientId?.name||'—'}</p>
+                  <p className='text-[10px] mt-0.5' style={{ color:'var(--txt-muted)' }}>
+                    {new Date(a.appointmentDate).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})}
+                    {a.symptoms && <span className='ml-1 opacity-70'>· {a.symptoms.slice(0,30)}</span>}
                   </p>
-                  <p className='text-xs text-slate-500 mt-0.5'>
-                    {new Date(a.appointmentDate).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
-                  </p>
-                  {a.symptoms && (
-                    <p className='text-xs text-slate-400 mt-0.5 truncate max-w-[200px]'>{a.symptoms}</p>
-                  )}
                 </div>
                 <select
                   value={a.status}
-                  onChange={e => handleStatusUpdate(a._id, e.target.value)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-bold border-none outline-none cursor-pointer ${STATUS_BADGE[a.status]}`}
+                  onChange={e => handleStatus(a._id, e.target.value)}
+                  className={`rounded-full px-3 py-1 text-[10px] font-semibold border-none outline-none cursor-pointer ml-3 ${STATUS_BADGE[a.status]}`}
                 >
-                  {['Pending', 'Approved', 'Completed', 'Cancelled'].map(s => (
+                  {['Pending','Approved','Completed','Cancelled'].map(s => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}
       </div>
-    </motion.div>
+
+      {/* ── Calendar View ─────────────────────────────────────────────── */}
+      <div className='mt-6'>
+        <CalendarView appointments={appointments} role="doctor" />
+      </div>
+    </div>
   )
 }
 

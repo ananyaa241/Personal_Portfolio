@@ -511,3 +511,146 @@ appointmentApp.get(
 
     }
 );
+
+appointmentApp.post(
+    "/symptom-check",
+    VerifyToken,
+    async (req, res, next) => {
+
+        try {
+
+            if (req.user.role !== "patient") {
+                return res.status(403).json({
+                    message: "Only patients may use the symptom checker."
+                });
+            }
+
+            const symptoms = (req.body.symptoms || "").trim();
+
+            if (!symptoms) {
+                return res.status(400).json({
+                    message: "Please provide symptoms for analysis."
+                });
+            }
+
+            const patient = await PatientModel.findById(req.user.userId);
+
+            if (!patient) {
+                return res.status(404).json({
+                    message: "Patient not found."
+                });
+            }
+
+            const doctors = await DoctorModel.find();
+            const availableSpecializations = [...new Set(
+                doctors
+                    .map((doc) => doc.specialization)
+                    .filter(Boolean)
+            )];
+
+            if (!process.env.OPENAI_API_KEY) {
+                return res.status(500).json({
+                    message: "OpenAI API key is not configured."
+                });
+            }
+
+            const prompt = `You are a medical assistant. A patient reports the following symptoms: "${symptoms}".
+
+Available specializations: ${availableSpecializations.join(", ")}.
+
+Return only valid JSON with the keys:
+- specialization: the best matching specialization from the list above or General Medicine.
+- explanation: a short plain-language explanation of why this specialty is the best fit.
+- precautions: an array of 3 to 4 first precautions the patient should take immediately.
+
+Do not return any other text.`;
+
+            const openAiResponse = await fetch(
+                "https://api.openai.com/v1/chat/completions",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-3.5-turbo",
+                        messages: [
+                            {
+                                role: "system",
+                                content: "You are a helpful, concise medical assistant."
+                            },
+                            {
+                                role: "user",
+                                content: prompt
+                            }
+                        ],
+                        temperature: 0.25,
+                        max_tokens: 320
+                    })
+                }
+            );
+
+            const openAiData = await openAiResponse.json();
+
+            if (!openAiResponse.ok) {
+                const errorMessage = openAiData?.error?.message || "OpenAI request failed.";
+                return res.status(502).json({ message: errorMessage });
+            }
+
+            const rawContent = openAiData?.choices?.[0]?.message?.content || "";
+
+            const extractJson = (text) => {
+                const start = text.indexOf("{");
+                const end = text.lastIndexOf("}");
+                if (start === -1 || end === -1) return null;
+                try {
+                    return JSON.parse(text.slice(start, end + 1));
+                } catch (parseErr) {
+                    return null;
+                }
+            };
+
+            const parsed = extractJson(rawContent) || {
+                specialization: "General Medicine",
+                explanation: "Use General Medicine until a more specific specialty can be identified.",
+                precautions: ["Rest", "Stay hydrated", "Monitor your symptoms"]
+            };
+
+            const matchedSpecialization = parsed.specialization || "General Medicine";
+
+            let recommendedDoctors = doctors.filter((doc) =>
+                doc.specialization?.toLowerCase().includes(matchedSpecialization.toLowerCase())
+            );
+
+            if (!recommendedDoctors.length) {
+                recommendedDoctors = doctors.slice().sort((a, b) => (b.experience || 0) - (a.experience || 0));
+            }
+
+            recommendedDoctors = recommendedDoctors.slice(0, 4).map((doc) => ({
+                _id: doc._id,
+                name: doc.name,
+                specialization: doc.specialization,
+                experience: doc.experience,
+                qualification: doc.qualification,
+                consultationFee: doc.consultationFee,
+                profileImage: doc.profileImage || "",
+            }));
+
+            res.status(200).json({
+                payload: {
+                    symptoms,
+                    specialization: matchedSpecialization,
+                    explanation: parsed.explanation || "A specialist from the recommended field can provide the best care.",
+                    precautions: Array.isArray(parsed.precautions)
+                        ? parsed.precautions
+                        : [parsed.precautions],
+                    recommendedDoctors
+                }
+            });
+
+        } catch (err) {
+            next(err);
+        }
+    }
+);

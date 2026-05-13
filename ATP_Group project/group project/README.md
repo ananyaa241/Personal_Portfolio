@@ -8,7 +8,7 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
-A full-stack, commercial-grade hospital management system with role-based dashboards for **Admins**, **Doctors**, and **Patients**.
+**A full-stack, commercial-grade hospital management system** with role-based dashboards for Admins, Doctors, and Patients. Features secure JWT authentication, appointment management, prescription handling, analytics, and responsive design.
 
 </div>
 
@@ -16,21 +16,31 @@ A full-stack, commercial-grade hospital management system with role-based dashbo
 
 ## 📋 Table of Contents
 
-- [Features](#-features)
+- [Overview](#-overview)
+- [✨ Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
 - [Prerequisites](#-prerequisites)
 - [Quick Start](#-quick-start)
-  - [1. Clone the Repository](#1-clone-the-repository)
-  - [2. Backend Setup](#2-backend-setup)
-  - [3. Frontend Setup](#3-frontend-setup)
-  - [4. Run the Project](#4-run-the-project)
 - [Environment Variables](#-environment-variables)
-- [API Reference](#-api-reference)
-- [User Roles & Access](#-user-roles--access)
+- [API Documentation](#-api-documentation)
+- [User Roles & Permissions](#-user-roles--permissions)
 - [Default Ports](#-default-ports)
 - [Troubleshooting](#-troubleshooting)
+- [Development Notes](#-development-notes)
 - [Contributing](#-contributing)
+
+---
+
+## 📌 Overview
+
+**MediCare+** is a comprehensive hospital management solution designed to streamline medical operations and improve patient care. The system supports three main roles:
+
+- **👨‍💼 Admins**: System management, user registration, analytics, and reporting
+- **👨‍⚕️ Doctors**: Profile management, appointment scheduling, and prescription issuance  
+- **🧑‍🤝 Patients**: Appointment booking, health record access, and medical history tracking
+
+Built with modern web technologies, the application ensures secure authentication, responsive design, and an intuitive user interface across all roles.
 
 ---
 
@@ -38,134 +48,184 @@ A full-stack, commercial-grade hospital management system with role-based dashbo
 
 | Feature | Description |
 |---|---|
-| 🔐 **Role-Based Auth** | Separate dashboards for Admin, Doctor, and Patient |
-| 📅 **Appointments** | Book, filter, update status, delete appointments |
-| 👨‍⚕️ **Doctor Management** | Search by name/specialization, full CRUD |
-| 🧑‍🤝‍🧑 **Patient Management** | Search, view medical history, blood group, contacts |
-| 💊 **Prescriptions** | Add medicines with dosage/duration, view records |
-| 📧 **Email Notifications** | Auto email on appointment booking via Nodemailer |
-| 📊 **Analytics Dashboard** | Charts for appointment trends and doctor distribution |
-| 🌙 **Dark Mode** | System-wide dark/light mode toggle |
-| 📱 **Responsive** | Mobile-friendly with hamburger navigation |
-| 🔔 **Toast Notifications** | Premium toast system replacing all `alert()` calls |
+| 🔐 **Role-Based Authentication** | Separate secure dashboards for Admin, Doctor, and Patient with JWT tokens |
+| 📅 **Appointment Management** | Book, filter, update status, delete appointments with calendar view |
+| 👨‍⚕️ **Doctor Management** | Search by name/specialization, full CRUD, profile management |
+| 🧑‍🤝‍🧑 **Patient Management** | Search, view medical history, blood group, contacts, vitals tracking |
+| 💊 **Prescription Management** | Add medicines with dosage/duration, view/manage records, PDF export |
+| 📧 **Email Notifications** | Automated email on appointment booking via Nodemailer |
+| 📊 **Analytics Dashboard** | Charts for appointment trends, doctor distribution, system analytics |
+| 🌙 **Dark/Light Mode** | System-wide theme toggle with persistent user preference |
+| 📱 **Responsive Design** | Mobile-friendly with hamburger navigation, optimized for all devices |
+| 🔔 **Toast Notifications** | Premium toast system for all user feedback |
 | 🔒 **Protected Routes** | JWT + role-based frontend and backend route guards |
+| 📸 **Image Upload** | Cloudinary integration for doctor/patient profile photos |
+| 🔍 **Advanced Search** | Filter appointments, doctors, patients with multiple criteria |
+| ⏰ **Reminder Service** | Automated appointment reminders via Node-Cron scheduler |
 
 ---
 
 ## 🛠 Tech Stack
 
 ### Backend
-| Package | Version | Purpose |
+| Technology | Version | Purpose |
 |---|---|---|
-| Express.js | ^5.x | REST API server |
-| Mongoose | ^9.x | MongoDB ODM |
-| bcryptjs | ^3.x | Password hashing |
-| jsonwebtoken | ^9.x | JWT authentication |
-| nodemailer | ^8.x | Email notifications |
-| multer | ^2.x | File uploads |
-| cloudinary | ^2.x | Cloud image storage |
-| dotenv | ^17.x | Environment variables |
-| cors | ^2.x | Cross-origin requests |
-| nodemon | ^3.x | Dev auto-restart |
+| **Node.js** | 18+ | JavaScript runtime environment |
+| **Express.js** | ^5.x | REST API server & middleware framework |
+| **MongoDB** | Latest | NoSQL database |
+| **Mongoose** | ^9.x | MongoDB ODM & schema validation |
+| **bcryptjs** | ^3.x | Secure password hashing |
+| **jsonwebtoken** | ^9.x | JWT authentication & token management |
+| **nodemailer** | ^8.x | Email notification service |
+| **multer** | ^2.x | File upload & form-data handling |
+| **cloudinary** | ^2.x | Cloud image storage & CDN |
+| **node-cron** | ^4.x | Scheduled appointment reminders |
+| **dotenv** | ^17.x | Environment variable management |
+| **cors** | ^2.x | Cross-origin request handling |
+| **cookie-parser** | ^1.x | Cookie parsing middleware |
+| **nodemon** | ^3.x | Dev auto-restart on file changes |
 
 ### Frontend
-| Package | Version | Purpose |
+| Technology | Version | Purpose |
 |---|---|---|
-| React | ^19.x | UI framework |
-| Vite | ^8.x | Build tool & dev server |
-| React Router DOM | ^7.x | Client-side routing |
-| Tailwind CSS | ^4.x | Utility-first styling |
-| Axios | ^1.x | HTTP client |
-| Framer Motion | ^11.x | Page & element animations |
-| React Hook Form | ^7.x | Form validation |
-| React Hot Toast | ^2.x | Toast notifications |
-| Recharts | ^2.x | Analytics charts |
-| React Icons | ^5.x | SVG icon library |
+| **React** | ^19.x | UI library & component framework |
+| **Vite** | ^8.x | Lightning-fast build tool & dev server |
+| **React Router DOM** | ^7.x | Client-side routing & navigation |
+| **Tailwind CSS** | ^4.x | Utility-first CSS framework |
+| **Axios** | ^1.x | HTTP client (centralized instance) |
+| **Framer Motion** | ^12.x | Page & element animations |
+| **React Hook Form** | ^7.x | Form validation & state management |
+| **React Hot Toast** | ^2.x | Toast notifications |
+| **Recharts** | ^3.x | Data visualization & analytics |
+| **React Icons** | ^5.x | SVG icon library |
+| **jsPDF** | ^4.x | PDF generation for prescriptions |
+| **jsPDF AutoTable** | ^5.x | PDF table formatting |
 
 ---
 
 ## 📁 Project Structure
 
 ```
-group project/
-├── backend/
+group-project/
+├── backend/                    # Node.js + Express REST API
 │   ├── APIs/
-│   │   ├── AdminAPI.js          # Admin routes (register, dashboard)
-│   │   ├── AppointmentAPI.js    # Full appointment CRUD + calendar
-│   │   ├── CommonAPI.js         # Login + token verify
-│   │   ├── DoctorAPI.js         # Doctor CRUD + search
-│   │   ├── PatientAPI.js        # Patient CRUD + search
-│   │   └── PrescriptionAPI.js   # Prescription add + fetch
+│   │   ├── AdminAPI.js        # Admin registration, dashboard stats
+│   │   ├── AppointmentAPI.js  # Full appointment CRUD + calendar
+│   │   ├── CommonAPI.js       # Login, logout, token verification
+│   │   ├── DoctorAPI.js       # Doctor CRUD, search, profile
+│   │   ├── PatientAPI.js      # Patient CRUD, search, medical history
+│   │   ├── PrescriptionAPI.js # Prescription management
+│   │   └── VitalsAPI.js       # Vitals tracking (heart rate, BP, etc)
 │   ├── config/
-│   │   ├── cloudinary.js        # Cloudinary setup
-│   │   ├── multer.js            # File upload config
-│   │   └── nodemailer.js        # Email transporter
+│   │   ├── cloudinary.js      # Cloudinary API configuration
+│   │   ├── cloudinaryUpload.js# Multer + Cloudinary integration
+│   │   ├── multer.js          # File upload middleware
+│   │   └── nodemailer.js      # Email service configuration
 │   ├── middlewares/
-│   │   └── VerifyToken.js       # JWT middleware
+│   │   └── VerifyToken.js     # JWT token verification middleware
 │   ├── models/
-│   │   ├── AdminModel.js
-│   │   ├── AppointmentModel.js
-│   │   ├── DoctorModel.js
-│   │   ├── PatientModel.js
-│   │   └── PrescriptionModel.js
-│   ├── .env                     # ⚠️ NOT in git — create from .env.example
-│   ├── .env.example             # ✅ Template — copy this
-│   ├── package.json
-│   └── server.js                # App entry point
+│   │   ├── AdminModel.js      # Admin schema
+│   │   ├── DoctorModel.js     # Doctor schema with specialization
+│   │   ├── PatientModel.js    # Patient schema with medical history
+│   │   ├── AppointmentModel.js# Appointment schema
+│   │   ├── PrescriptionModel.js # Prescription schema
+│   │   └── VitalsModel.js     # Vitals schema
+│   ├── services/
+│   │   └── reminderService.js # Node-Cron scheduled reminders
+│   ├── server.js              # Express app setup & entry point
+│   ├── package.json           # Backend dependencies
+│   ├── .env                   # ⚠️ Environment variables (NEVER commit)
+│   ├── .env.example           # ✅ Environment template
+│   ├── admin.http             # REST client test file
+│   ├── appointment.http       # REST client test file
+│   ├── auth.http              # REST client test file
+│   ├── doctor.http            # REST client test file
+│   ├── patient.http           # REST client test file
+│   ├── prescription.http      # REST client test file
+│   └── README.md              # Backend-specific documentation
 │
-├── frontend/
+├── frontend/                  # React + Vite + Tailwind CSS
 │   ├── src/
 │   │   ├── api/
-│   │   │   └── axiosInstance.js  # Centralized axios with JWT interceptors
+│   │   │   └── axiosInstance.js  # Centralized Axios with JWT interceptors
+│   │   ├── assets/               # Images, fonts, static files
 │   │   ├── components/
-│   │   │   ├── admin/            # AdminDashboard (charts + stats)
-│   │   │   ├── appointment/      # Appointments, AppointmentForm, CalendarView
-│   │   │   ├── common/           # Header, Footer, Sidebar, Loader, ErrorBoundary…
-│   │   │   ├── doctor/           # Doctors, DoctorDashboard
-│   │   │   ├── patient/          # PatientList, PatientDashboard
-│   │   │   └── prescription/     # Prescription (add + view)
+│   │   │   ├── admin/
+│   │   │   │   └── AdminDashboard.jsx    # Stats & management
+│   │   │   ├── appointment/
+│   │   │   │   ├── AppointmentForm.jsx   # Book/edit appointments
+│   │   │   │   ├── Appointments.jsx      # List & manage
+│   │   │   │   └── CalendarView.jsx      # Calendar visualization
+│   │   │   ├── common/
+│   │   │   │   ├── Header.jsx            # Navigation & auth
+│   │   │   │   ├── Footer.jsx            # Footer
+│   │   │   │   ├── Sidebar.jsx           # Navigation sidebar
+│   │   │   │   ├── Loader.jsx            # Loading spinner
+│   │   │   │   ├── SkeletonCard.jsx      # Skeleton loading
+│   │   │   │   ├── EmptyState.jsx        # Empty state UI
+│   │   │   │   ├── ErrorBoundary.jsx     # Error handling
+│   │   │   │   ├── Hero.jsx              # Home hero section
+│   │   │   │   └── SymptomChecker.jsx    # Symptom checker
+│   │   │   ├── doctor/
+│   │   │   │   ├── Doctors.jsx           # Doctor list & search
+│   │   │   │   ├── DoctorDashboard.jsx   # Doctor dashboard
+│   │   │   │   └── DoctorProfile.jsx     # Doctor profile view/edit
+│   │   │   ├── patient/
+│   │   │   │   ├── PatientList.jsx       # Patient search & list
+│   │   │   │   ├── PatientDashboard.jsx  # Patient dashboard
+│   │   │   │   ├── VitalsTracker.jsx     # Vitals tracking
+│   │   │   │   └── SymptomChecker.jsx    # Symptom analysis
+│   │   │   └── prescription/
+│   │   │       └── Prescription.jsx      # Prescription management
 │   │   ├── context/
-│   │   │   └── AuthContext.jsx   # Global auth state (token, role, user)
+│   │   │   └── AuthContext.jsx           # Global auth state
 │   │   ├── layouts/
-│   │   │   ├── MainLayout.jsx    # Header + Footer wrapper (public pages)
-│   │   │   └── DashboardLayout.jsx # Sidebar + main content wrapper
+│   │   │   ├── MainLayout.jsx            # Public layout
+│   │   │   └── DashboardLayout.jsx       # Protected layout
 │   │   ├── pages/
-│   │   │   ├── Dashboard.jsx     # Role-aware dashboard router
-│   │   │   ├── Home.jsx
-│   │   │   ├── Login.jsx
-│   │   │   ├── Profile.jsx       # Edit profile + appointments + prescriptions
-│   │   │   ├── Register.jsx
-│   │   │   └── Unauthorized.jsx
+│   │   │   ├── Dashboard.jsx             # Role-aware dashboard
+│   │   │   ├── Home.jsx                  # Landing page
+│   │   │   ├── Login.jsx                 # Login form
+│   │   │   ├── Register.jsx              # Registration form
+│   │   │   ├── Profile.jsx               # User profile
+│   │   │   ├── InfoPage.jsx              # About/Info page
+│   │   │   └── Unauthorized.jsx          # 403 error page
 │   │   ├── routes/
-│   │   │   └── ProtectedRoute.jsx # JWT + role guard
-│   │   ├── App.jsx
-│   │   ├── index.css
-│   │   └── main.jsx
-│   ├── .env                      # ⚠️ NOT in git — create from .env.example
-│   ├── .env.example              # ✅ Template — copy this
-│   ├── index.html
-│   ├── package.json
-│   ├── tailwind.config.js
-│   └── vite.config.js
+│   │   │   └── ProtectedRoute.jsx        # JWT + role guard
+│   │   ├── App.jsx                       # Main app & routes
+│   │   ├── main.jsx                      # Entry point
+│   │   ├── index.css                     # Global styles
+│   │   └── App.css                       # App styles
+│   ├── public/                           # Static assets
+│   ├── tailwind.config.js                # Tailwind config
+│   ├── vite.config.js                    # Vite config
+│   ├── eslint.config.js                  # ESLint rules
+│   ├── index.html                        # HTML entry point
+│   ├── package.json                      # Frontend dependencies
+│   ├── .env                              # ⚠️ Environment variables
+│   ├── .env.example                      # ✅ Environment template
+│   └── README.md                         # Frontend documentation
 │
-├── .gitignore
-└── README.md                     # ← You are here
+├── .gitignore                            # Git ignore rules
+└── README.md                             # Main project documentation
 ```
 
 ---
 
 ## ✅ Prerequisites
 
-Make sure the following are installed on your machine before starting:
+Before you begin, ensure you have the following installed:
 
-| Tool | Version | Download |
+| Tool | Minimum Version | Installation |
 |---|---|---|
-| **Node.js** | v18 or higher | [nodejs.org](https://nodejs.org) |
-| **npm** | v9 or higher | Comes with Node.js |
-| **MongoDB** | v6 or higher | [mongodb.com](https://www.mongodb.com/try/download/community) |
-| **Git** | Any | [git-scm.com](https://git-scm.com) |
+| **Node.js** | v18.0.0 | https://nodejs.org/ |
+| **npm** | v9.0.0 | Comes with Node.js |
+| **MongoDB** | v6.0.0 | https://www.mongodb.com/try/download/community |
+| **Git** | Latest | https://git-scm.com/ |
 
-> **Optional:** [MongoDB Compass](https://www.mongodb.com/products/compass) — GUI to view your database.
+**Optional:**
+- **MongoDB Compass** - GUI for viewing database: https://www.mongodb.com/products/compass
+- **Postman** or **Thunder Client** - API testing tools
 
 ---
 
@@ -174,323 +234,382 @@ Make sure the following are installed on your machine before starting:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+git clone https://github.com/ananyaa241/atp_group_project.git
 
 cd "group project"
 ```
 
----
-
 ### 2. Backend Setup
 
 ```bash
-# Navigate into backend
 cd backend
 
 # Install dependencies
 npm install
 
-# Copy the environment template
-# Windows (Command Prompt):
+# Create environment file
+# Windows CMD:
 copy .env.example .env
 
-# Windows (PowerShell):
+# Windows PowerShell:
 Copy-Item .env.example .env
 
-# Mac / Linux:
+# Mac/Linux:
 cp .env.example .env
 ```
 
-Now **open `backend/.env`** in any text editor and fill in your values:
+**Edit `.env` file with your configuration:**
 
 ```env
 PORT=5000
-DB_URL=mongodb://127.0.0.1:27017/hospital
-JWT_SECRET=replace_with_a_long_random_secret_key_here
-EMAIL_USER=your_gmail@gmail.com
-EMAIL_PASS=your_gmail_app_password
+MONGODB_URI=mongodb://localhost:27017/medicare
+JWT_SECRET=your_super_secret_jwt_key_here_make_it_long_and_random
+
+# Email Configuration (Nodemailer)
+SENDER_EMAIL=your_email@gmail.com
+SENDER_PASSWORD=your_app_specific_password
+
+# Cloudinary (Optional - for image uploads)
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 ```
 
-> ⚠️ **Gmail App Password**: Regular Gmail password won't work. You need to generate an **App Password**:
-> 1. Go to [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
-> 2. Select **Mail** → **Other (Custom name)** → Generate
-> 3. Use the 16-character password in `EMAIL_PASS`
+**Start the backend:**
 
-> 💡 **Cloudinary is optional** — only needed if you add image upload features. Leave the values as `xxxx` to skip it for now.
+```bash
+npm start
+```
 
----
+✅ Backend runs at **http://localhost:5000**
 
 ### 3. Frontend Setup
 
+Open a new terminal and navigate to frontend:
+
 ```bash
-# Go back to the root, then into frontend
-cd ../frontend
+cd frontend
 
 # Install dependencies
 npm install
 
-# Copy the environment template
-# Windows (Command Prompt):
+# Create environment file
+# Windows CMD:
 copy .env.example .env
 
-# Windows (PowerShell):
+# Windows PowerShell:
 Copy-Item .env.example .env
 
-# Mac / Linux:
+# Mac/Linux:
 cp .env.example .env
 ```
 
-The frontend `.env` only needs one value — leave it as-is if backend runs on port 5000:
+**Edit `.env` file:**
 
 ```env
 VITE_API_URL=http://localhost:5000
 ```
 
----
+**Start the frontend:**
 
-### 4. Run the Project
-
-You need **two terminals open** simultaneously.
-
-**Terminal 1 — Backend:**
 ```bash
-cd backend
-npm start
-```
-> You should see:
-> ```
-> MongoDB connected successfully
-> Server running on port 5000
-> ```
-
-**Terminal 2 — Frontend:**
-```bash
-cd frontend
 npm run dev
 ```
-> You should see:
-> ```
-> VITE ready in XXXms
-> ➜ Local: http://localhost:5173/
-> ```
 
-Now open your browser and go to: **[http://localhost:5173](http://localhost:5173)**
+✅ Frontend runs at **http://localhost:5173**
 
----
+### 4. Access the Application
 
-## 🔐 Creating Your First Admin Account
-
-The admin registration endpoint is not exposed on the frontend UI (for security). Use a tool like **Postman** or **Thunder Client** (VS Code extension):
-
-```
-POST http://localhost:5000/admin-api/register
-Content-Type: application/json
-
-{
-  "name": "Admin User",
-  "email": "admin@hospital.com",
-  "password": "Admin@1234"
-}
-```
-
-Then log in at [http://localhost:5173/login](http://localhost:5173/login) using those credentials.
+Open your browser and go to: **http://localhost:5173**
 
 ---
 
-## 🌍 Environment Variables
+## 🔐 Environment Variables
 
-### Backend — `backend/.env`
+### Backend (.env)
 
-| Variable | Required | Description |
+| Variable | Required | Example | Notes |
+|---|---|---|---|
+| `PORT` | ✅ | `5000` | Server port |
+| `MONGODB_URI` | ✅ | `mongodb://localhost:27017/medicare` | Local or Atlas connection |
+| `JWT_SECRET` | ✅ | `long_random_string_here` | Use strong random value |
+| `SENDER_EMAIL` | ⚠️ | `your_email@gmail.com` | For email notifications |
+| `SENDER_PASSWORD` | ⚠️ | `app_specific_password` | Gmail app password (not regular) |
+| `CLOUDINARY_CLOUD_NAME` | ❌ | `your_cloud` | Optional - for images |
+| `CLOUDINARY_API_KEY` | ❌ | `api_key` | Optional |
+| `CLOUDINARY_API_SECRET` | ❌ | `api_secret` | Optional |
+
+**Note:** ⚠️ = Recommended | ❌ = Optional
+
+### Frontend (.env)
+
+| Variable | Required | Example |
 |---|---|---|
-| `PORT` | ✅ | Port the backend server runs on (default: `5000`) |
-| `DB_URL` | ✅ | MongoDB connection string |
-| `JWT_SECRET` | ✅ | Secret key for signing JWT tokens — make it long and random |
-| `EMAIL_USER` | ⚠️ Optional | Gmail address for appointment email notifications |
-| `EMAIL_PASS` | ⚠️ Optional | Gmail **App Password** (not your regular password) |
-| `CLOUDINARY_CLOUD_NAME` | ⚠️ Optional | Cloudinary cloud name (for image uploads) |
-| `CLOUDINARY_API_KEY` | ⚠️ Optional | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | ⚠️ Optional | Cloudinary API secret |
+| `VITE_API_URL` | ✅ | `http://localhost:5000` |
 
-### Frontend — `frontend/.env`
+---
 
-| Variable | Required | Description |
+## 📡 API Documentation
+
+### Base URL
+```
+http://localhost:5000/api
+```
+
+### Authentication
+All protected endpoints require JWT token in header:
+```
+Authorization: Bearer <your_jwt_token>
+```
+
+### Public Endpoints
+
+#### Authentication
+| Method | Endpoint | Purpose |
 |---|---|---|
-| `VITE_API_URL` | ✅ | Full URL of your backend (e.g. `http://localhost:5000`) |
+| `POST` | `/common/login` | Login (Admin/Doctor/Patient) |
+| `POST` | `/common/logout` | Logout |
+| `POST` | `/common/verifyToken` | Verify JWT token |
+
+#### Admin
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/admin/register` | Register new admin |
+| `GET` | `/admin/dashboard` | Get dashboard stats |
+
+#### Doctor
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/doctor/all` | List all doctors |
+| `GET` | `/doctor/:id` | Get doctor by ID |
+| `POST` | `/doctor/add` | Add new doctor |
+| `PUT` | `/doctor/:id` | Update doctor |
+| `DELETE` | `/doctor/:id` | Delete doctor |
+| `GET` | `/doctor/search?name=&specialization=` | Search doctors |
+
+#### Patient
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/patient/all` | List all patients |
+| `GET` | `/patient/:id` | Get patient by ID |
+| `POST` | `/patient/add` | Add new patient |
+| `PUT` | `/patient/:id` | Update patient |
+| `DELETE` | `/patient/:id` | Delete patient |
+| `GET` | `/patient/search?name=&bloodGroup=` | Search patients |
+
+### Protected Endpoints
+
+#### Appointment (requires JWT)
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/appointment/all` | List all appointments |
+| `GET` | `/appointment/:id` | Get appointment by ID |
+| `POST` | `/appointment/add` | Book new appointment |
+| `PUT` | `/appointment/:id` | Update appointment |
+| `DELETE` | `/appointment/:id` | Cancel appointment |
+| `GET` | `/appointment/calendar?date=` | Calendar events |
+
+#### Prescription (requires JWT)
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/prescription/all` | List prescriptions |
+| `POST` | `/prescription/add` | Add prescription |
+| `GET` | `/prescription/:id` | Get prescription by ID |
+| `PUT` | `/prescription/:id` | Update prescription |
+
+#### Vitals (requires JWT)
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/vitals/add` | Add vital signs |
+| `GET` | `/vitals/patient/:id` | Get patient vitals history |
 
 ---
 
-## 📡 API Reference
+## 👥 User Roles & Permissions
 
-### Auth — `/auth`
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/auth/login` | No | Login for admin, doctor, or patient |
-| `GET` | `/auth/verify` | No | Verify a JWT token |
+### Admin
+- ✅ Register new admins
+- ✅ View system dashboard with analytics
+- ✅ Manage doctors (add, edit, delete)
+- ✅ Manage patients (add, edit, delete)
+- ✅ View all appointments
+- ✅ View all prescriptions
+- ✅ Access system statistics
 
-### Admin — `/admin-api`
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/admin-api/register` | No | Create admin account |
-| `GET` | `/admin-api/dashboard` | No | Get counts (doctors, patients, appointments) |
+### Doctor
+- ✅ View and edit own profile
+- ✅ Manage appointments (view, update status)
+- ✅ Add and manage prescriptions
+- ✅ View patient information
+- ✅ Track patient vitals
+- ✅ Upload profile photo
+- ✅ View dashboard with appointments
 
-### Doctor — `/doctor-api`
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/doctor-api/register` | No | Register a new doctor |
-| `GET` | `/doctor-api/doctors` | No | Get all doctors |
-| `GET` | `/doctor-api/doctor/:id` | No | Get single doctor |
-| `PUT` | `/doctor-api/update-doctor/:id` | No | Update doctor profile |
-| `DELETE` | `/doctor-api/delete-doctor/:id` | No | Delete a doctor |
-| `GET` | `/doctor-api/search/:key` | No | Search by name or specialization |
-
-### Patient — `/patient-api`
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/patient-api/register` | No | Register a new patient |
-| `GET` | `/patient-api/patients` | No | Get all patients |
-| `GET` | `/patient-api/patient/:id` | No | Get single patient |
-| `PUT` | `/patient-api/update-patient/:id` | No | Update patient profile |
-| `DELETE` | `/patient-api/delete-patient/:id` | No | Delete a patient |
-| `GET` | `/patient-api/search/:key` | No | Search by name |
-
-### Appointment — `/appointment-api`
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/appointment-api/book` | ✅ JWT | Book a new appointment |
-| `GET` | `/appointment-api/` | ✅ JWT | Get all appointments (populated) |
-| `GET` | `/appointment-api/:id` | ✅ JWT | Get single appointment |
-| `PUT` | `/appointment-api/update-status/:id` | ✅ JWT | Update appointment status |
-| `DELETE` | `/appointment-api/delete/:id` | ✅ JWT | Delete appointment |
-| `GET` | `/appointment-api/search/:status` | ✅ JWT | Filter by status |
-| `GET` | `/appointment-api/doctor/:doctorId` | ✅ JWT | Doctor's appointments |
-| `GET` | `/appointment-api/patient/:patientId` | ✅ JWT | Patient's appointments |
-| `GET` | `/appointment-api/calendar/events` | ✅ JWT | Calendar view events |
-
-### Prescription — `/prescription-api`
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/prescription-api/add` | No | Add a prescription |
-| `GET` | `/prescription-api/patient/:patientId` | No | Get patient's prescriptions |
-
----
-
-## 👥 User Roles & Access
-
-| Feature | Admin | Doctor | Patient |
-|---|:---:|:---:|:---:|
-| Admin Dashboard (charts) | ✅ | ❌ | ❌ |
-| Doctor Dashboard (own appointments) | ❌ | ✅ | ❌ |
-| Patient Dashboard (own data) | ❌ | ❌ | ✅ |
-| View All Doctors | ✅ | ✅ | ✅ |
-| View All Patients | ✅ | ✅ | ❌ |
-| Delete Patients/Doctors | ✅ | ❌ | ❌ |
-| View All Appointments | ✅ | ✅ | ✅ |
-| Update Appointment Status | ✅ | ✅ | ❌ |
-| Delete Appointments | ✅ | ✅ | ❌ |
-| Book Appointments | ❌ | ❌ | ✅ |
-| Add Prescriptions | ✅ | ✅ | ❌ |
-| View Prescriptions | ✅ | ✅ | ✅ |
-| Edit Own Profile | ✅ | ✅ | ✅ |
+### Patient
+- ✅ View and edit own profile
+- ✅ Book appointments with doctors
+- ✅ View appointment history
+- ✅ View prescriptions
+- ✅ Track health vitals
+- ✅ Upload profile photo
+- ✅ Search and filter doctors
+- ✅ View personal medical history
 
 ---
 
 ## 🔌 Default Ports
 
-| Service | URL |
-|---|---|
-| **Backend API** | `http://localhost:5000` |
-| **Frontend App** | `http://localhost:5173` |
-| **MongoDB** | `mongodb://127.0.0.1:27017` |
+| Service | Port | URL |
+|---|---|---|
+| **Frontend** | 5173 | http://localhost:5173 |
+| **Backend API** | 5000 | http://localhost:5000 |
+| **MongoDB** | 27017 | mongodb://localhost:27017 |
 
 ---
 
 ## 🐛 Troubleshooting
 
-### ❌ `MongoDB connection error`
-- Make sure MongoDB is **running** on your machine.
-- **Windows:** Search for "Services" → find "MongoDB" → Start it.
-- Or run in terminal: `mongod`
-- Check your `DB_URL` in `backend/.env` is correct.
+### MongoDB Connection Error
+```
+Error: connect ECONNREFUSED 127.0.0.1:27017
+```
+**Solution:**
+- Start MongoDB: `mongod`
+- Check connection string in `.env`
+- Or use MongoDB Atlas cloud
 
-### ❌ `Cannot GET /appointment-api` (CORS error in browser)
-- Make sure the backend is running on port `5000`.
-- Check `frontend/.env` has `VITE_API_URL=http://localhost:5000` (no trailing slash).
-- The backend CORS config only allows `http://localhost:5173` — do not change the frontend port.
+### CORS Error
+```
+Access to XMLHttpRequest blocked by CORS policy
+```
+**Solution:**
+- Ensure frontend URL is in backend CORS whitelist
+- Check backend is running on port 5000
+- Restart both servers
 
-### ❌ `401 Unauthorized` on API calls
-- Your JWT token may have expired (tokens last 1 day).
-- Log out and log in again.
-- Make sure `JWT_SECRET` in `.env` is set and not empty.
+### JWT Token Error
+```
+Error: jwt malformed / jwt expired
+```
+**Solution:**
+- Clear browser cookies and local storage
+- Log out and log back in
+- Check JWT_SECRET matches in backend
 
-### ❌ `Email sending failed` in backend logs
-- This is non-fatal — appointments still get saved.
-- To fix: set a valid Gmail address and App Password in `backend/.env`.
-- Make sure **2-Factor Authentication** is enabled on your Google account before generating an App Password.
+### Email Not Sending
+```
+Error: Invalid login or authentication credentials
+```
+**Solution:**
+- Use Gmail app-specific password (not regular password)
+- Enable 2FA on Gmail account
+- For setup: https://myaccount.google.com/apppasswords
 
-### ❌ `react-icons` or `framer-motion` not found
+### Installation Issues
+```
+npm ERR! code ERESOLVE
+```
+**Solution:**
 ```bash
-cd frontend
-npm install
-```
-
-### ❌ `nodemon: command not found`
-```bash
-cd backend
-npm install
-# Then use:
-npm start
-# or for dev with auto-restart:
-npx nodemon server.js
-```
-
-### ❌ Frontend shows blank page / components not loading
-- Open DevTools (F12) → Console — check for errors.
-- Make sure backend is running before opening the frontend.
-- Hard refresh: `Ctrl + Shift + R`.
-
----
-
-## 🤝 Contributing
-
-1. **Fork** the repository on GitHub
-2. **Clone** your fork: `git clone https://github.com/YOUR_USERNAME/REPO.git`
-3. **Create a branch**: `git checkout -b feature/your-feature-name`
-4. **Make your changes** and commit: `git commit -m "feat: describe your change"`
-5. **Push** to your fork: `git push origin feature/your-feature-name`
-6. Open a **Pull Request** on GitHub
-
-### Commit Message Convention
-```
-feat:     New feature
-fix:      Bug fix
-style:    UI/CSS changes (no logic change)
-refactor: Code restructure
-docs:     Documentation update
-chore:    Dependency updates, config changes
+npm cache clean --force
+npm install --legacy-peer-deps
 ```
 
 ---
 
-## 📸 Screenshots
+## 👨‍💻 Development Guidelines
 
-> _Add screenshots of your app here after deployment_
+### Frontend Best Practices
 
-| Home Page | Admin Dashboard | Doctor Dashboard |
-|---|---|---|
-| _screenshot_ | _screenshot_ | _screenshot_ |
+1. **Always use centralized Axios:**
+   ```javascript
+   import axiosInstance from '../api/axiosInstance'
+   ```
+
+2. **Use React Hook Form for forms:**
+   ```javascript
+   import { useForm } from 'react-hook-form'
+   ```
+
+3. **Use Toast Notifications:**
+   ```javascript
+   import toast from 'react-hot-toast'
+   toast.success('Success!')
+   ```
+
+4. **Protected Routes:**
+   - Use `ProtectedRoute` component
+   - Check `AuthContext` for user role
+
+### Backend Best Practices
+
+1. **Never hardcode sensitive data** - use `.env`
+2. **Always hash passwords** - use bcryptjs
+3. **Validate all inputs** - prevent SQL injection
+4. **Use proper HTTP methods** - GET, POST, PUT, DELETE
+5. **Log errors for debugging**
+6. **Return consistent JSON responses**
+
+### Git Workflow
+
+```bash
+# Create feature branch
+git checkout -b feature/your-feature
+
+# Make changes and commit
+git add .
+git commit -m "Add your feature"
+
+# Push to repository
+git push origin feature/your-feature
+
+# Create pull request on GitHub
+```
+
+---
+
+## 📝 Contributing
+
+Contributions are welcome! Follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/your-feature`
+3. **Commit** changes: `git commit -m "Add your feature"`
+4. **Push** to branch: `git push origin feature/your-feature`
+5. **Submit** a Pull Request
 
 ---
 
 ## 📄 License
 
-This project is for educational purposes as part of a group project.
+This project is licensed under the **ISC License**.
+
+---
+
+## 📞 Support
+
+For issues and questions:
+- Create an **Issue** on GitHub
+- Check existing **Documentation**
+- Review **Backend** and **Frontend** README files
+
+---
+
+## 🙏 Acknowledgments
+
+**Built with ❤️ by the ATP Group Project Team**
+
+Special thanks to:
+- MongoDB for database
+- React & Vite for amazing tools
+- All contributors and team members
 
 ---
 
 <div align="center">
-Built with ❤️ by the MediCare+ Team
+
+**Made with ❤️ for better healthcare management**
+
+[⬆ Back to Top](#-medicare--hospital-management-system)
+
 </div>

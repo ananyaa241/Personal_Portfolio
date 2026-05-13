@@ -21,21 +21,21 @@ const appointmentSchema = new Schema({
 
     status: {
         type: String,
-        enum: [
-            "Pending",
-            "Approved",
-            "Completed",
-            "Cancelled"
-        ],
+        enum: ["Pending", "Approved", "Completed", "Cancelled"],
         default: "Pending"
     },
 
     prescriptionId: {
         type: Schema.Types.ObjectId,
         ref: "prescription"
+    },
+
+    // Tracks whether the 24-hour reminder email has been sent
+    reminderSent: {
+        type: Boolean,
+        default: false
     }
 
 }, { timestamps: true });
 
-export const AppointmentModel =
-    model("appointment", appointmentSchema);
+export const AppointmentModel = model("appointment", appointmentSchema);

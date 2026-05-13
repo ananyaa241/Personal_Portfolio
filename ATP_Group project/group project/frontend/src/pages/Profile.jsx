@@ -11,13 +11,13 @@ import { FaPrescriptionBottleAlt, FaCalendarCheck } from 'react-icons/fa'
 
 function InfoField({ icon: Icon, label, value }) {
   return (
-    <div className='flex items-start gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-800/50'>
-      <div className='mt-0.5 text-cyan-500'>
+    <div className='flex items-start gap-4 rounded-2xl border border-[var(--border)] bg-[var(--bg-subtle)] p-5  dark:bg-[var(--bg-subtle)]'>
+      <div className='mt-0.5 text-teal-600'>
         <Icon />
       </div>
       <div>
-        <p className='text-xs text-slate-400 uppercase tracking-wider font-semibold'>{label}</p>
-        <p className='mt-1 font-semibold text-slate-800 dark:text-slate-100'>{value || '—'}</p>
+        <p className='text-xs text-[color:var(--txt-muted)] uppercase tracking-wider font-semibold'>{label}</p>
+        <p className='mt-1 font-semibold text-[color:var(--txt-primary)] '>{value || '—'}</p>
       </div>
     </div>
   )
@@ -104,7 +104,7 @@ function Profile() {
   const STATUS_BADGE = {
     Pending:   'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
     Approved:  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-    Completed: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300',
+    Completed: 'bg-teal-100 text-teal-800  dark:text-cyan-300',
     Cancelled: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
   }
 
@@ -115,30 +115,30 @@ function Profile() {
       transition={{ duration: 0.4 }}
     >
       {/* Page header */}
-      <div className='flex items-center justify-between gap-4 mb-8 flex-wrap'>
+      <div className='flex items-center justify-between gap-4 mb-6 pb-5 flex-wrap border-b' style={{ borderColor: 'var(--border)' }}>
         <div>
-          <p className='text-cyan-500 uppercase tracking-widest text-xs font-bold'>Account</p>
-          <h1 className='mt-2 text-4xl font-black text-slate-900 dark:text-white'>My Profile</h1>
+          <p className='text-xs uppercase tracking-widest font-semibold text-teal-600 dark:text-teal-400'>Account</p>
+          <h1 className='mt-1 text-xl font-bold text-[color:var(--txt-primary)] '>My Profile</h1>
         </div>
         <div className='flex gap-3'>
           {editMode ? (
             <button
               onClick={() => setEditMode(false)}
-              className='flex items-center gap-2 rounded-2xl border border-slate-200 px-5 py-3 text-slate-600 hover:bg-slate-100 transition dark:border-slate-700 dark:text-slate-300'
+              className='flex items-center gap-2 rounded-2xl border border-[var(--border)] px-5 py-3 text-[color:var(--txt-secondary)] hover:bg-slate-100 transition  '
             >
               <FaTimes /> Cancel
             </button>
           ) : (
             <button
               onClick={() => setEditMode(true)}
-              className='flex items-center gap-2 rounded-2xl bg-cyan-500 px-5 py-3 text-white font-semibold hover:bg-cyan-600 transition shadow-lg'
+              className='flex items-center gap-2 rounded-2xl bg-teal-600 px-5 py-3 text-white font-semibold hover:bg-teal-700 transition shadow-lg'
             >
               <FaEdit /> Edit Profile
             </button>
           )}
           <button
             onClick={() => { logout(); navigate('/login') }}
-            className='rounded-2xl border border-slate-200 px-5 py-3 text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition dark:border-slate-700 dark:text-slate-300'
+            className='rounded-2xl border border-[var(--border)] px-5 py-3 text-[color:var(--txt-secondary)] hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition  '
           >
             Sign Out
           </button>
@@ -148,17 +148,17 @@ function Profile() {
       <div className='grid lg:grid-cols-[1.4fr_1fr] gap-6'>
         {/* LEFT — Profile card */}
         <div className='space-y-6'>
-          <div className='rounded-3xl bg-white p-8 shadow-xl dark:bg-slate-900'>
+          <div className='rounded-3xl bg-[var(--bg-card)] p-8 shadow-xl dark:bg-[var(--bg-card)]'>
             {/* Avatar */}
             <div className='flex items-center gap-5'>
-              <div className='h-20 w-20 rounded-3xl bg-gradient-to-br from-cyan-400 to-indigo-500 flex items-center justify-center text-4xl font-black text-white shadow-lg'>
+              <div className='h-20 w-20 rounded-3xl bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-4xl font-black text-white shadow-lg'>
                 {user?.name?.charAt(0)?.toUpperCase() || 'U'}
               </div>
               <div>
-                <h2 className='text-3xl font-black text-slate-900 dark:text-white'>{user?.name || 'User'}</h2>
-                <p className='text-slate-500 dark:text-slate-400 mt-1 capitalize'>{role || 'visitor'}</p>
+                <h2 className='text-3xl font-black text-[color:var(--txt-primary)] '>{user?.name || 'User'}</h2>
+                <p className='text-[color:var(--txt-muted)] dark:text-[color:var(--txt-muted)] mt-1 capitalize'>{role || 'visitor'}</p>
                 {role === 'doctor' && user?.specialization && (
-                  <p className='text-cyan-500 font-semibold mt-0.5'>{user.specialization}</p>
+                  <p className='text-teal-600 font-semibold mt-0.5'>{user.specialization}</p>
                 )}
               </div>
             </div>
@@ -206,23 +206,23 @@ function Profile() {
                     ])
                   ].map(({ label, field, type }) => (
                     <label key={field} className='block'>
-                      <span className='text-sm text-slate-500 dark:text-slate-400'>{label}</span>
+                      <span className='text-sm text-[color:var(--txt-muted)] dark:text-[color:var(--txt-muted)]'>{label}</span>
                       <input
                         type={type}
                         value={formData[field] || ''}
                         onChange={e => handleChange(field, e.target.value)}
-                        className='mt-1.5 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 outline-none focus:border-cyan-500 transition dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200'
+                        className='mt-1.5 w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] px-4 py-3 text-[color:var(--txt-primary)] outline-none focus:border-teal-600 transition  dark:bg-[var(--bg-card)] '
                       />
                     </label>
                   ))}
                   {role === 'patient' && (
                     <label className='block md:col-span-2'>
-                      <span className='text-sm text-slate-500 dark:text-slate-400'>Address</span>
+                      <span className='text-sm text-[color:var(--txt-muted)] dark:text-[color:var(--txt-muted)]'>Address</span>
                       <textarea
                         value={formData.address || ''}
                         onChange={e => handleChange('address', e.target.value)}
                         rows={2}
-                        className='mt-1.5 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 outline-none focus:border-cyan-500 transition resize-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200'
+                        className='mt-1.5 w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] px-4 py-3 text-[color:var(--txt-primary)] outline-none focus:border-teal-600 transition resize-none  dark:bg-[var(--bg-card)] '
                       />
                     </label>
                   )}
@@ -230,7 +230,7 @@ function Profile() {
                 <button
                   type='submit'
                   disabled={loading}
-                  className='w-full flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 py-4 font-bold text-white hover:bg-cyan-600 transition disabled:opacity-60'
+                  className='w-full flex items-center justify-center gap-2 rounded-2xl bg-teal-600 py-4 font-bold text-white hover:bg-teal-700 transition disabled:opacity-60'
                 >
                   {loading ? 'Saving...' : <><FaSave /> Save Changes</>}
                 </button>
@@ -242,13 +242,13 @@ function Profile() {
         {/* RIGHT — Appointments + Prescriptions */}
         <div className='space-y-6'>
           {/* My Appointments */}
-          <div className='rounded-3xl bg-white p-7 shadow-xl dark:bg-slate-900'>
-            <h2 className='text-xl font-bold text-slate-800 dark:text-white mb-5 flex items-center gap-2'>
-              <FaCalendarCheck className='text-cyan-500' /> My Appointments
+          <div className='rounded-3xl bg-[var(--bg-card)] p-7 shadow-xl dark:bg-[var(--bg-card)]'>
+            <h2 className='text-xl font-bold text-[color:var(--txt-primary)]  mb-5 flex items-center gap-2'>
+              <FaCalendarCheck className='text-teal-600' /> My Appointments
             </h2>
             {loadingExtra ? (
               <div className='py-6 flex justify-center'>
-                <div className='h-8 w-8 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin' />
+                <div className='h-8 w-8 rounded-full border-4 border-teal-600 border-t-transparent animate-spin' />
               </div>
             ) : appointments.length === 0 ? (
               <EmptyState
@@ -259,12 +259,12 @@ function Profile() {
             ) : (
               <div className='space-y-3 max-h-72 overflow-y-auto pr-1'>
                 {appointments.slice(0, 6).map(a => (
-                  <div key={a._id} className='flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800'>
+                  <div key={a._id} className='flex items-center justify-between rounded-2xl bg-[var(--bg-subtle)] px-4 py-3 dark:bg-[var(--bg-subtle)]'>
                     <div>
-                      <p className='font-semibold text-slate-800 dark:text-slate-200 text-sm'>
+                      <p className='font-semibold text-[color:var(--txt-primary)]  text-sm'>
                         {role === 'patient' ? `Dr. ${a.doctorId?.name || '—'}` : a.patientId?.name || '—'}
                       </p>
-                      <p className='text-xs text-slate-500 mt-0.5'>
+                      <p className='text-xs text-[color:var(--txt-muted)] mt-0.5'>
                         {new Date(a.appointmentDate).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
                       </p>
                     </div>
@@ -279,13 +279,13 @@ function Profile() {
 
           {/* My Prescriptions (patient only) */}
           {role === 'patient' && (
-            <div className='rounded-3xl bg-white p-7 shadow-xl dark:bg-slate-900'>
-              <h2 className='text-xl font-bold text-slate-800 dark:text-white mb-5 flex items-center gap-2'>
-                <FaPrescriptionBottleAlt className='text-cyan-500' /> My Prescriptions
+            <div className='rounded-3xl bg-[var(--bg-card)] p-7 shadow-xl dark:bg-[var(--bg-card)]'>
+              <h2 className='text-xl font-bold text-[color:var(--txt-primary)]  mb-5 flex items-center gap-2'>
+                <FaPrescriptionBottleAlt className='text-teal-600' /> My Prescriptions
               </h2>
               {loadingExtra ? (
                 <div className='py-6 flex justify-center'>
-                  <div className='h-8 w-8 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin' />
+                  <div className='h-8 w-8 rounded-full border-4 border-teal-600 border-t-transparent animate-spin' />
                 </div>
               ) : prescriptions.length === 0 ? (
                 <EmptyState
@@ -296,16 +296,16 @@ function Profile() {
               ) : (
                 <div className='space-y-3 max-h-72 overflow-y-auto pr-1'>
                   {prescriptions.map(rx => (
-                    <div key={rx._id} className='rounded-2xl bg-slate-50 p-4 dark:bg-slate-800'>
-                      <p className='font-semibold text-slate-800 dark:text-slate-200 text-sm'>
+                    <div key={rx._id} className='rounded-2xl bg-[var(--bg-subtle)] p-4 dark:bg-[var(--bg-subtle)]'>
+                      <p className='font-semibold text-[color:var(--txt-primary)]  text-sm'>
                         Dr. {rx.doctorId?.name || '—'}
                       </p>
-                      <p className='text-xs text-slate-400 mt-0.5'>
+                      <p className='text-xs text-[color:var(--txt-muted)] mt-0.5'>
                         {new Date(rx.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
                       </p>
                       <div className='mt-2 flex flex-wrap gap-2'>
                         {rx.medicines?.slice(0, 3).map((m, j) => (
-                          <span key={j} className='rounded-xl bg-cyan-50 px-2 py-1 text-xs font-semibold text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300'>
+                          <span key={j} className='rounded-xl bg-teal-50 px-2 py-1 text-xs font-semibold text-teal-800  dark:text-cyan-300'>
                             {m.medicineName}
                           </span>
                         ))}
@@ -319,18 +319,18 @@ function Profile() {
 
           {/* Medical History (patient only) */}
           {role === 'patient' && user?.medicalHistory?.length > 0 && (
-            <div className='rounded-3xl bg-white p-7 shadow-xl dark:bg-slate-900'>
-              <h2 className='text-xl font-bold text-slate-800 dark:text-white mb-5'>Medical History</h2>
+            <div className='rounded-3xl bg-[var(--bg-card)] p-7 shadow-xl dark:bg-[var(--bg-card)]'>
+              <h2 className='text-xl font-bold text-[color:var(--txt-primary)]  mb-5'>Medical History</h2>
               <div className='space-y-3'>
                 {user.medicalHistory.map((h, i) => (
-                  <div key={i} className='rounded-2xl border border-slate-100 p-4 dark:border-slate-800'>
-                    <p className='font-semibold text-slate-800 dark:text-white'>{h.disease}</p>
+                  <div key={i} className='rounded-2xl border border-[var(--border)] p-4 '>
+                    <p className='font-semibold text-[color:var(--txt-primary)] '>{h.disease}</p>
                     {h.diagnosisDate && (
-                      <p className='text-xs text-slate-400 mt-1'>
+                      <p className='text-xs text-[color:var(--txt-muted)] mt-1'>
                         {new Date(h.diagnosisDate).toLocaleDateString('en-IN')}
                       </p>
                     )}
-                    {h.notes && <p className='text-sm text-slate-600 dark:text-slate-400 mt-2'>{h.notes}</p>}
+                    {h.notes && <p className='text-sm text-[color:var(--txt-secondary)] dark:text-[color:var(--txt-muted)] mt-2'>{h.notes}</p>}
                   </div>
                 ))}
               </div>

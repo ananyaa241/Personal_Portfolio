@@ -12,24 +12,37 @@ const prescriptionSchema = new Schema({
         ref: "doctor"
     },
 
-    appointmentId: {
-        type: Schema.Types.ObjectId,
-        ref: "appointment"
+    age: Number,
+    
+    gender: String,
+    
+    prescriptionDate: {
+        type: Date,
+        default: Date.now
     },
 
     medicines: [
-
         {
             medicineName: String,
             dosage: String,
             duration: String
         }
-
     ],
 
-    notes: String
+    notes: String,
+
+    // Cloudinary URL of the uploaded handwritten prescription image
+    handwrittenImageUrl: {
+        type: String,
+        default: null
+    },
+
+    // OCR-extracted text from the handwritten image (populated by frontend Tesseract)
+    ocrExtractedText: {
+        type: String,
+        default: null
+    }
 
 }, { timestamps: true });
 
-export const PrescriptionModel =
-    model("prescription", prescriptionSchema);
+export const PrescriptionModel = model("prescription", prescriptionSchema);

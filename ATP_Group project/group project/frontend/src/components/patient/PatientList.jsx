@@ -8,7 +8,7 @@ import SkeletonCard from '../common/SkeletonCard'
 import EmptyState from '../common/EmptyState'
 
 function PatientList() {
-  const { role } = useContext(AuthContext)
+  const { role, user } = useContext(AuthContext)
   const [patients, setPatients] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -16,11 +16,28 @@ function PatientList() {
   async function fetchPatients(query = '') {
     try {
       setLoading(true)
-      const url = query.trim()
-        ? `/patient-api/search/${encodeURIComponent(query.trim())}`
-        : '/patient-api/patients'
-      const res = await axiosInstance.get(url)
-      setPatients(res.data.payload || [])
+      if (role === 'doctor' && user?._id) {
+        const res = await axiosInstance.get(`/appointment-api/doctor/${user._id}`)
+        const appts = res.data.payload || []
+        const patientMap = new Map()
+        appts.forEach(a => {
+          if (a.patientId && a.patientId._id) {
+            patientMap.set(a.patientId._id, a.patientId)
+          }
+        })
+        let list = Array.from(patientMap.values())
+        if (query.trim()) {
+          const q = query.toLowerCase()
+          list = list.filter(p => p.name?.toLowerCase().includes(q))
+        }
+        setPatients(list)
+      } else {
+        const url = query.trim()
+          ? `/patient-api/search/${encodeURIComponent(query.trim())}`
+          : '/patient-api/patients'
+        const res = await axiosInstance.get(url)
+        setPatients(res.data.payload || [])
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to load patients')
     } finally {
@@ -52,28 +69,32 @@ function PatientList() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Header */}
-      <div className='flex flex-wrap items-center justify-between gap-4 mb-8'>
+      {/* ── Page header ─────────────────────────────────────────────────── */}
+      <div className='flex flex-wrap items-center justify-between gap-4 mb-6 pb-5 border-b' style={{ borderColor: 'var(--border)' }}>
         <div>
-          <p className='text-cyan-500 uppercase tracking-widest text-xs font-bold'>Registry</p>
-          <h1 className='mt-2 text-4xl font-black text-slate-900 dark:text-white'>Patients</h1>
+          <p className='text-xs uppercase tracking-widest font-semibold text-teal-600 dark:text-teal-400'>Registry</p>
+          <h1 className='mt-1 text-xl font-bold' style={{ color: 'var(--txt-primary)' }}>Patients</h1>
         </div>
+
         {/* Search */}
-        <div className='relative w-full max-w-sm'>
-          <FaSearch className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-400' />
+        <div className='relative w-full max-w-xs'>
+          <FaSearch size={12} className='absolute left-3.5 top-1/2 -translate-y-1/2' style={{ color: 'var(--txt-muted)' }} />
           <input
             type='text'
             placeholder='Search by name...'
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className='w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-5 py-3 text-slate-700 outline-none focus:border-cyan-400 transition dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
+            className='w-full pl-9 pr-4 py-2 rounded-lg border text-xs outline-none transition'
+            style={{ borderColor: 'var(--border)', background: 'var(--bg-card)', color: 'var(--txt-primary)' }}
+            onFocus={e => e.target.style.borderColor = '#0d9488'}
+            onBlur={e => e.target.style.borderColor = 'var(--border)'}
           />
         </div>
       </div>
 
-      {/* Grid */}
+      {/* ── Grid ────────────────────────────────────────────────────────── */}
       {loading ? (
-        <div className='grid md:grid-cols-3 gap-6'>
+        <div className='grid md:grid-cols-3 gap-4'>
           {Array.from({ length: 6 }).map((_, i) => (
             <SkeletonCard key={i} className='h-52' />
           ))}
@@ -81,7 +102,7 @@ function PatientList() {
       ) : patients.length === 0 ? (
         <EmptyState icon={FaUsers} title='No patients found' message='Try a different search term.' />
       ) : (
-        <div className='grid md:grid-cols-3 gap-6'>
+        <div className='grid md:grid-cols-3 gap-4'>
           <AnimatePresence>
             {patients.map((patient, i) => (
               <motion.div
@@ -90,45 +111,50 @@ function PatientList() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: i * 0.05 }}
-                className='relative rounded-3xl bg-white p-7 shadow-xl dark:bg-slate-900'
+                className='relative rounded-xl overflow-hidden transition-shadow hover:shadow-md'
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
               >
-                {/* Avatar */}
-                <div className='flex items-center gap-4'>
-                  <div className='h-14 w-14 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-2xl font-black text-cyan-600 dark:text-cyan-300'>
-                    {patient.name?.charAt(0) || 'P'}
+                {/* Avatar strip */}
+                <div
+                  className='h-16 flex items-center gap-3 px-5'
+                  style={{ background: 'linear-gradient(135deg, #0f2a28 0%, #134e4a 100%)' }}
+                >
+                  <div
+                    className='h-10 w-10 rounded-xl flex items-center justify-center text-base font-bold text-teal-400 flex-shrink-0'
+                    style={{ background: 'rgba(13,148,136,0.2)', border: '1.5px solid rgba(13,148,136,0.35)' }}
+                  >
+                    {patient.name?.charAt(0)?.toUpperCase() || 'P'}
                   </div>
-                  <div>
-                    <h2 className='text-lg font-bold text-slate-800 dark:text-white'>
-                      {patient.name}
-                    </h2>
-                    <p className='text-sm text-slate-500 dark:text-slate-400'>{patient.email}</p>
+                  <div className='min-w-0'>
+                    <h2 className='text-xs font-bold text-white truncate'>{patient.name}</h2>
+                    <p className='text-[10px] text-teal-300 truncate'>{patient.email}</p>
                   </div>
                 </div>
 
                 {/* Details */}
-                <div className='mt-5 grid grid-cols-2 gap-3'>
+                <div className='p-4 grid grid-cols-2 gap-2'>
                   {patient.age && (
-                    <div className='rounded-2xl bg-slate-50 px-3 py-2 dark:bg-slate-800'>
-                      <p className='text-xs text-slate-400'>Age</p>
-                      <p className='font-bold text-slate-700 dark:text-slate-200'>{patient.age} yrs</p>
+                    <div className='rounded-lg px-3 py-2' style={{ background: 'var(--bg-subtle)' }}>
+                      <p className='text-[10px] font-semibold uppercase tracking-wide' style={{ color: 'var(--txt-muted)' }}>Age</p>
+                      <p className='text-xs font-bold mt-0.5' style={{ color: 'var(--txt-primary)' }}>{patient.age} yrs</p>
                     </div>
                   )}
                   {patient.gender && (
-                    <div className='rounded-2xl bg-slate-50 px-3 py-2 dark:bg-slate-800'>
-                      <p className='text-xs text-slate-400'>Gender</p>
-                      <p className='font-bold text-slate-700 dark:text-slate-200 capitalize'>{patient.gender}</p>
+                    <div className='rounded-lg px-3 py-2' style={{ background: 'var(--bg-subtle)' }}>
+                      <p className='text-[10px] font-semibold uppercase tracking-wide' style={{ color: 'var(--txt-muted)' }}>Gender</p>
+                      <p className='text-xs font-bold mt-0.5 capitalize' style={{ color: 'var(--txt-primary)' }}>{patient.gender}</p>
                     </div>
                   )}
                   {patient.bloodGroup && (
-                    <div className='rounded-2xl bg-rose-50 px-3 py-2 dark:bg-rose-900/20'>
-                      <p className='text-xs text-rose-400'>Blood Group</p>
-                      <p className='font-bold text-rose-600 dark:text-rose-300'>{patient.bloodGroup}</p>
+                    <div className='rounded-lg px-3 py-2' style={{ background: 'rgba(220,38,38,0.07)', border: '1px solid rgba(220,38,38,0.15)' }}>
+                      <p className='text-[10px] font-semibold uppercase tracking-wide' style={{ color: '#ef4444' }}>Blood</p>
+                      <p className='text-xs font-bold mt-0.5' style={{ color: '#dc2626' }}>{patient.bloodGroup}</p>
                     </div>
                   )}
                   {patient.phone && (
-                    <div className='rounded-2xl bg-slate-50 px-3 py-2 dark:bg-slate-800'>
-                      <p className='text-xs text-slate-400'>Phone</p>
-                      <p className='font-bold text-slate-700 dark:text-slate-200'>{patient.phone}</p>
+                    <div className='rounded-lg px-3 py-2' style={{ background: 'var(--bg-subtle)' }}>
+                      <p className='text-[10px] font-semibold uppercase tracking-wide' style={{ color: 'var(--txt-muted)' }}>Phone</p>
+                      <p className='text-xs font-bold mt-0.5' style={{ color: 'var(--txt-primary)' }}>{patient.phone}</p>
                     </div>
                   )}
                 </div>
@@ -136,9 +162,12 @@ function PatientList() {
                 {role === 'admin' && (
                   <button
                     onClick={() => handleDelete(patient._id)}
-                    className='absolute right-5 top-5 rounded-xl border border-rose-200 bg-rose-50 p-2 text-rose-400 hover:bg-rose-100 transition dark:border-rose-800 dark:bg-rose-900/30'
+                    className='absolute right-4 top-4 h-7 w-7 rounded-lg border flex items-center justify-center transition-colors'
+                    style={{ borderColor: 'rgba(220,38,38,0.3)', color: '#dc2626', background: 'rgba(220,38,38,0.08)' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(220,38,38,0.18)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(220,38,38,0.08)'}
                   >
-                    <FaTrash size={11} />
+                    <FaTrash size={10} />
                   </button>
                 )}
               </motion.div>
@@ -148,8 +177,8 @@ function PatientList() {
       )}
 
       {!loading && patients.length > 0 && (
-        <p className='mt-5 text-sm text-slate-500 dark:text-slate-400'>
-          Showing <strong>{patients.length}</strong> patients
+        <p className='mt-4 text-xs' style={{ color: 'var(--txt-muted)' }}>
+          Showing <strong style={{ color: 'var(--txt-secondary)' }}>{patients.length}</strong> patients
         </p>
       )}
     </motion.div>

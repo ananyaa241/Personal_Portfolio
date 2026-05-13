@@ -12,6 +12,9 @@ import Doctors from './components/doctor/Doctors'
 import PatientList from './components/patient/PatientList'
 import Appointments from './components/appointment/Appointments'
 import Prescription from './components/prescription/Prescription'
+import DoctorProfile from './components/doctor/DoctorProfile'
+import InfoPage from './pages/InfoPage'
+import SymptomChecker from './components/patient/SymptomChecker'
 
 function App() {
   return (
@@ -23,13 +26,15 @@ function App() {
           <Route path='login'        element={<Login />} />
           <Route path='register'     element={<Register />} />
           <Route path='unauthorized' element={<Unauthorized />} />
+          <Route path='doctors'      element={<Doctors />} />
+          <Route path='doctor/:id'   element={<DoctorProfile />} />
+          <Route path='info/:category/:slug' element={<InfoPage />} />
         </Route>
 
         {/* Protected routes — with Sidebar dashboard layout */}
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path='dashboard'    element={<Dashboard />} />
-            <Route path='doctors'      element={<Doctors />} />
             <Route
               path='patients'
               element={
@@ -48,6 +53,14 @@ function App() {
               }
             />
             <Route path='profile' element={<Profile />} />
+            <Route
+              path='symptom-checker'
+              element={
+                <ProtectedRoute allowedRoles={['patient']}>
+                  <SymptomChecker />
+                </ProtectedRoute>
+              }
+            />
           </Route>
         </Route>
 

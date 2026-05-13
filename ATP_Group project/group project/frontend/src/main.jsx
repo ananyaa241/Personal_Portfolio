@@ -14,21 +14,19 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Toaster
           position='top-right'
           toastOptions={{
-            duration: 4000,
+            duration: 3500,
             style: {
-              background: '#0f172a',
-              color: '#e2e8f0',
-              borderRadius: '16px',
-              border: '1px solid rgba(148,163,184,0.15)',
-              fontSize: '14px',
+              background: '#ffffff',
+              color: '#0f172a',
+              borderRadius: '10px',
+              border: '1px solid #e2e8f0',
+              fontSize: '12.5px',
               fontWeight: '500',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+              padding: '10px 14px',
             },
-            success: {
-              iconTheme: { primary: '#06b6d4', secondary: '#fff' },
-            },
-            error: {
-              iconTheme: { primary: '#f43f5e', secondary: '#fff' },
-            },
+            success: { iconTheme: { primary: '#0d9488', secondary: '#fff' } },
+            error:   { iconTheme: { primary: '#dc2626', secondary: '#fff' } },
           }}
         />
       </AuthProvider>
